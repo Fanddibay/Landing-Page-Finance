@@ -75,10 +75,10 @@
                   </div>
 
                   <!-- Iframe -->
-                  <!-- <iframe v-show="!isLoading && !hasError" ref="demoIframe" src="https://financial-webapp.netlify.app/"
+                  <iframe v-show="!isLoading && !hasError" ref="demoIframe" src="https://financial-webapp.netlify.app/"
                     class="w-full h-full border-0" frameborder="0" allow="clipboard-read; clipboard-write"
                     allowfullscreen @load="handleIframeLoad" @error="handleIframeError" title="Financial Web App Demo">
-                  </iframe> -->
+                  </iframe>
                 </div>
               </div>
             </div>
