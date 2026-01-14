@@ -39,13 +39,13 @@
 
         <!-- Dashboard Mockup -->
         <div class="flex justify-center">
-          <div class="group relative w-64 md:w-[340px] transition-all duration-300 hover:scale-105">
+          <div class="group relative w-full md:w-[340px] transition-all duration-300 hover:scale-105">
             <!-- Phone Frame -->
             <div
               class="bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl transition-all duration-300 group-hover:shadow-green-500/50">
               <div class="bg-white rounded-[2rem] overflow-hidden relative">
                 <!-- Screen with iframe -->
-                <div class="bg-gradient-to-br from-green-50 to-white h-[500px] md:h-[600px] relative">
+                <div class="bg-gradient-to-br from-green-50 to-white h-[600px] md:h-[600px] relative">
                   <!-- Loading State -->
                   <div v-if="isLoading"
                     class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50 to-white z-10">
