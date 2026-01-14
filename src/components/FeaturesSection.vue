@@ -57,20 +57,44 @@
                         <div class="bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
                           <div class="bg-white rounded-[2rem] overflow-hidden relative">
                             <!-- Video Container -->
-                            <div class="relative w-full bg-black aspect-[9/19.5]">
+                            <div
+                              class="relative w-full bg-gradient-to-br from-green-50 to-white aspect-[9/19.5] overflow-hidden">
+                              <!-- Placeholder/Loading State -->
+                              <div v-if="!videoReady[index]"
+                                class="absolute inset-0 bg-gradient-to-br from-green-50 to-white flex items-center justify-center z-0">
+                                <div
+                                  class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
+                                </div>
+                              </div>
+
+                              <!-- Video Element -->
                               <video :ref="el => {
                                 if (el) {
-                                  videoRefs[index] = el
-                                  el.setAttribute('data-video-index', index)
-                                  el.setAttribute('data-video-type', 'mobile')
+                                  try {
+                                    // Ensure array is initialized
+                                    initializeVideoRefs()
+                                    // Set ref safely - ensure index exists and array is valid
+                                    if (Array.isArray(videoRefs.value) && index >= 0 && index < videoRefs.value.length) {
+                                      videoRefs.value[index] = el
+                                    }
+                                    el.setAttribute('data-video-index', index)
+                                    el.setAttribute('data-video-type', 'mobile')
+                                    setVideoLoading(index, true)
+                                  } catch (err) {
+                                    console.error('Error setting video ref:', err)
+                                  }
                                 }
                               }" :src="videoSources[index]" :data-video-index="index" data-video-type="mobile"
-                                class="w-full h-full object-cover" muted loop playsinline preload="metadata"
-                                @loadedmetadata="onVideoLoaded(index)" @play="videoPlaying[index] = true"
-                                @pause="videoPlaying[index] = false" @ended="videoPlaying[index] = false"
-                                @click.stop="playVideo(index)"></video>
+                                class="w-full h-full object-cover transition-opacity duration-500"
+                                :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
+                                :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
+                                @loadedmetadata="onVideoLoaded(index)"
+                                @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
+                                @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
+                                @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
+
                               <!-- Play Button Overlay -->
-                              <button v-if="!videoPlaying[index]" @click.stop="playVideo(index)"
+                              <button v-if="!videoPlaying[index] && videoReady[index]" @click.stop="playVideo(index)"
                                 class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-10">
                                 <div
                                   class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
@@ -131,21 +155,45 @@
                   <div class="bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
                     <div class="bg-white rounded-[2rem] overflow-hidden relative">
                       <!-- Video Container -->
-                      <div class="relative w-full bg-black aspect-[9/19.5]">
+                      <div
+                        class="relative w-full bg-gradient-to-br from-green-50 to-white aspect-[9/19.5] overflow-hidden">
+                        <!-- Placeholder/Loading State -->
+                        <div v-if="!videoReady[index]"
+                          class="absolute inset-0 bg-gradient-to-br from-green-50 to-white flex items-center justify-center z-0">
+                          <div
+                            class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
+                          </div>
+                        </div>
+
+                        <!-- Video Element -->
                         <video :ref="el => {
                           if (el) {
-                            videoRefs[index] = el
-                            el.setAttribute('data-video-index', index)
-                            el.setAttribute('data-video-type', 'desktop')
+                            try {
+                              // Ensure array is initialized
+                              initializeVideoRefs()
+                              // Set ref safely - ensure index exists and array is valid
+                              if (Array.isArray(videoRefs.value) && index >= 0 && index < videoRefs.value.length) {
+                                videoRefs.value[index] = el
+                              }
+                              el.setAttribute('data-video-index', index)
+                              el.setAttribute('data-video-type', 'desktop')
+                              setVideoLoading(index, true)
+                            } catch (err) {
+                              console.error('Error setting video ref:', err)
+                            }
                           }
                         }" :src="videoSources[index]" :data-video-index="index" data-video-type="desktop"
-                          class="w-full h-full object-cover" muted loop playsinline preload="metadata"
-                          @loadedmetadata="onVideoLoaded(index)" @play="videoPlaying[index] = true"
-                          @pause="videoPlaying[index] = false" @ended="videoPlaying[index] = false"
-                          @click.stop="playVideo(index)"></video>
+                          class="w-full h-full object-cover transition-opacity duration-500"
+                          :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
+                          :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
+                          @loadedmetadata="onVideoLoaded(index)"
+                          @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
+                          @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
+                          @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
+
                         <!-- Play Button Overlay -->
-                        <button v-if="!videoPlaying[index]" @click="playVideo(index)"
-                          class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group">
+                        <button v-if="!videoPlaying[index] && videoReady[index]" @click="playVideo(index)"
+                          class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-10">
                           <div
                             class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
                             <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -270,10 +318,44 @@ const videoSources = [
   chartVideo,
 ]
 
+// Initialize videoRefs array immediately to prevent undefined errors
+const initializeVideoRefs = () => {
+  try {
+    // Ensure videoRefs.value is initialized as array
+    if (!Array.isArray(videoRefs.value)) {
+      videoRefs.value = []
+    }
+    // Get steps count safely - check if t is available and has features.steps
+    let stepsCount = 6 // default fallback
+    if (t && typeof t === 'object' && t.features && Array.isArray(t.features.steps)) {
+      stepsCount = t.features.steps.length
+    }
+    // Ensure videoRefs array has enough slots
+    if (Array.isArray(videoRefs.value)) {
+      while (videoRefs.value.length < stepsCount) {
+        videoRefs.value.push(null)
+      }
+    }
+  } catch (err) {
+    console.error('Error initializing video refs:', err)
+    // Fallback: ensure at least 6 slots
+    if (!Array.isArray(videoRefs.value)) {
+      videoRefs.value = []
+    }
+    if (Array.isArray(videoRefs.value)) {
+      while (videoRefs.value.length < 6) {
+        videoRefs.value.push(null)
+      }
+    }
+  }
+}
+
 // Reactive state
 const activeStep = ref(0)
 const videoRefs = ref([])
 const videoPlaying = ref({})
+const videoReady = ref({}) // Track if video is ready to show (loaded first frame)
+const videoLoading = ref({}) // Track video loading state
 const stepRefs = ref([])
 const stepperRef = ref(null)
 const showStepper = ref(true)
@@ -286,6 +368,55 @@ let scrollHandler = null
 let isScrolling = false
 let scrollTimeout = null
 let mobileObserver = null // IntersectionObserver for mobile slides
+
+// Helper functions to safely access reactive objects
+const setVideoLoading = (index, value) => {
+  if (videoLoading.value[index] === undefined) {
+    videoLoading.value[index] = value
+  } else {
+    videoLoading.value[index] = value
+  }
+}
+
+const setVideoReady = (index, value) => {
+  if (videoReady.value[index] === undefined) {
+    videoReady.value[index] = value
+  } else {
+    videoReady.value[index] = value
+  }
+}
+
+const setVideoPlaying = (index, value) => {
+  if (videoPlaying.value[index] === undefined) {
+    videoPlaying.value[index] = value
+  } else {
+    videoPlaying.value[index] = value
+  }
+}
+
+// Initialize reactive objects to prevent undefined errors
+const initializeVideoState = () => {
+  try {
+    // Get steps count safely - check if t is available and has features.steps
+    let stepsCount = 6 // default fallback
+    if (t && typeof t === 'object' && t.features && Array.isArray(t.features.steps)) {
+      stepsCount = t.features.steps.length
+    }
+    for (let i = 0; i < stepsCount; i++) {
+      setVideoPlaying(i, false)
+      setVideoReady(i, false)
+      setVideoLoading(i, false)
+    }
+  } catch (err) {
+    console.error('Error initializing video state:', err)
+    // Fallback: initialize at least 6 steps
+    for (let i = 0; i < 6; i++) {
+      setVideoPlaying(i, false)
+      setVideoReady(i, false)
+      setVideoLoading(i, false)
+    }
+  }
+}
 
 // Calculate swiper width based on viewport
 const updateSwiperWidth = () => {
@@ -306,23 +437,45 @@ const onVideoLoaded = (index) => {
     video = document.querySelector(`video[data-video-index="${index}"]`)
   }
 
-  if (!video && videoRefs.value[index]) {
+  if (!video && videoRefs.value && videoRefs.value[index]) {
     video = videoRefs.value[index]
   }
 
   if (video) {
     video.playbackRate = 1.25
-    // Initialize videoPlaying state
-    if (videoPlaying.value[index] === undefined) {
-      videoPlaying.value[index] = false
+    setVideoLoading(index, false)
+
+    // Preload first frame to avoid black screen
+    const showFirstFrame = () => {
+      if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+        // Seek to first frame (0.1s to avoid potential issues)
+        video.currentTime = 0.1
+        video.pause() // Ensure it's paused
+        setVideoReady(index, true)
+      } else {
+        // Wait for canplay event
+        video.addEventListener('canplay', () => {
+          video.currentTime = 0.1
+          video.pause()
+          setVideoReady(index, true)
+        }, { once: true })
+      }
     }
+
+    // Try to show first frame immediately
+    if (video.readyState >= 1) { // HAVE_METADATA
+      showFirstFrame()
+    } else {
+      video.addEventListener('loadeddata', showFirstFrame, { once: true })
+    }
+
+    // Initialize videoPlaying state
+    setVideoPlaying(index, false)
   }
 }
 
 // Play video
 const playVideo = (index) => {
-  console.log(`Attempting to play video ${index}`)
-
   // Always find video in DOM first (most reliable)
   const isMobile = window.innerWidth < 1024
   const videoType = isMobile ? 'mobile' : 'desktop'
@@ -334,17 +487,13 @@ const playVideo = (index) => {
   }
 
   // Also check refs as last resort
-  if (!video && videoRefs.value[index]) {
+  if (!video && videoRefs.value && videoRefs.value[index]) {
     video = videoRefs.value[index]
   }
 
   if (!video) {
-    console.error(`Video at index ${index} not found in DOM or refs`)
-    console.log('Available videos:', document.querySelectorAll('video'))
     return
   }
-
-  console.log(`Found video for index ${index}:`, video)
 
   // Stop all other videos
   document.querySelectorAll('video').forEach((v) => {
@@ -352,14 +501,44 @@ const playVideo = (index) => {
       v.pause()
       const vIndex = parseInt(v.getAttribute('data-video-index') || '-1')
       if (vIndex >= 0) {
-        videoPlaying.value[vIndex] = false
+        setVideoPlaying(vIndex, false)
       }
     }
   })
 
   // Initialize videoPlaying state
-  if (videoPlaying.value[index] === undefined) {
-    videoPlaying.value[index] = false
+  setVideoPlaying(index, false)
+
+  // Ensure video is ready before playing
+  if (!videoReady.value[index] || videoReady.value[index] === undefined) {
+    // Wait for video to be ready
+    const onCanPlay = () => {
+      video.currentTime = 0
+      video.play().then(() => {
+        setVideoPlaying(index, true)
+      }).catch(() => {
+        setVideoPlaying(index, false)
+      })
+      video.removeEventListener('canplay', onCanPlay)
+    }
+
+    if (video.readyState >= 2) {
+      video.currentTime = 0
+      video.play().then(() => {
+        setVideoPlaying(index, true)
+      }).catch(() => {
+        setVideoPlaying(index, false)
+      })
+    } else {
+      video.addEventListener('canplay', onCanPlay, { once: true })
+      video.load()
+    }
+    return
+  }
+
+  // Reset to beginning for smooth start
+  if (video.readyState >= 2) {
+    video.currentTime = 0
   }
 
   // Play the video
@@ -369,20 +548,17 @@ const playVideo = (index) => {
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
-          console.log(`Video ${index} started playing`)
-          videoPlaying.value[index] = true
+          setVideoPlaying(index, true)
         })
-        .catch((err) => {
-          console.error(`Error playing video ${index}:`, err)
-          videoPlaying.value[index] = false
+        .catch(() => {
+          setVideoPlaying(index, false)
         })
     } else {
       // Fallback for older browsers
-      videoPlaying.value[index] = true
+      setVideoPlaying(index, true)
     }
   } catch (err) {
-    console.error(`Exception playing video ${index}:`, err)
-    videoPlaying.value[index] = false
+    setVideoPlaying(index, false)
   }
 }
 
@@ -397,14 +573,14 @@ const pauseVideo = (index) => {
     video = document.querySelector(`video[data-video-index="${index}"]`)
   }
 
-  if (!video && videoRefs.value[index]) {
+  if (!video && videoRefs.value && videoRefs.value[index]) {
     video = videoRefs.value[index]
   }
 
   if (!video) return
 
   video.pause()
-  videoPlaying.value[index] = false
+  setVideoPlaying(index, false)
 }
 
 // Scroll to step (desktop)
@@ -478,13 +654,18 @@ const onTouchEnd = () => {
 
 // Intersection Observer setup for steps (desktop)
 onMounted(() => {
+  // Initialize video refs array first
+  initializeVideoRefs()
+  // Initialize video state
+  initializeVideoState()
+
   // Update swiper width for mobile
   nextTick(() => {
     updateSwiperWidth()
     // Recalculate on resize
     window.addEventListener('resize', updateSwiperWidth)
 
-    // Setup IntersectionObserver for mobile slides
+    // Setup IntersectionObserver for mobile slides and lazy load videos
     setTimeout(() => {
       const slides = slideRefs.value.filter(el => el)
       if (slides.length > 0 && swiperContainer.value) {
@@ -504,6 +685,12 @@ onMounted(() => {
                 const index = slides.indexOf(entry.target)
                 if (index !== -1) {
                   mostVisibleIndex = index
+
+                  // Lazy load video when slide becomes visible
+                  const video = entry.target.querySelector('video')
+                  if (video && video.readyState === 0) {
+                    video.load()
+                  }
                 }
               }
             })
@@ -522,6 +709,15 @@ onMounted(() => {
         slides.forEach((slide) => {
           mobileObserver.observe(slide)
         })
+      }
+
+      // Preload first video only (mobile)
+      initializeVideoRefs()
+      if (videoRefs.value && videoRefs.value[0]) {
+        const firstVideo = document.querySelector('video[data-video-index="0"][data-video-type="mobile"]')
+        if (firstVideo) {
+          firstVideo.load()
+        }
       }
     }, 200)
   })
@@ -546,6 +742,14 @@ onMounted(() => {
             if (index !== -1 && entry.intersectionRatio > maxRatio) {
               maxRatio = entry.intersectionRatio
               mostVisibleIndex = index
+
+              // Lazy load video when step becomes visible (desktop)
+              if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                const video = entry.target.querySelector('video')
+                if (video && video.readyState === 0) {
+                  video.load()
+                }
+              }
             }
           })
 
