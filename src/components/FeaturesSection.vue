@@ -59,16 +59,23 @@
                             <!-- Video Container -->
                             <div
                               class="relative w-full bg-gradient-to-br from-green-50 to-white aspect-[9/19.5] overflow-hidden">
-                              <!-- Placeholder/Loading State -->
-                              <div v-if="!videoReady[index]"
-                                class="absolute inset-0 bg-gradient-to-br from-green-50 to-white flex items-center justify-center z-0">
+                              <!-- Static Image Placeholder (shown before video starts) -->
+                              <div v-if="!videoStarted[index]"
+                                class="absolute inset-0 z-20 flex items-center justify-center">
+                                <img :src="heroPlaceholder" alt="Video placeholder"
+                                  class="w-full h-full object-cover" />
+                              </div>
+
+                              <!-- Loading Spinner (shown when video is loading but not started) -->
+                              <div v-if="videoLoading[index] && !videoStarted[index]"
+                                class="absolute inset-0 bg-black/20 flex items-center justify-center z-30">
                                 <div
                                   class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
                                 </div>
                               </div>
 
-                              <!-- Video Element -->
-                              <video :ref="el => {
+                              <!-- Video Element (only shown after user clicks play) -->
+                              <video v-if="videoStarted[index]" :ref="el => {
                                 if (el) {
                                   try {
                                     // Ensure array is initialized
@@ -79,22 +86,75 @@
                                     }
                                     el.setAttribute('data-video-index', index)
                                     el.setAttribute('data-video-type', 'mobile')
-                                    setVideoLoading(index, true)
+
+                                    // Auto-play when video is ready (after user clicked start)
+                                    const autoPlay = () => {
+                                      if (el.readyState >= 2) {
+                                        el.currentTime = 0
+                                        el.play()
+                                          .then(() => {
+                                            setVideoPlaying(index, true)
+                                            setVideoLoading(index, false)
+                                            setVideoReady(index, true)
+                                          })
+                                          .catch(() => {
+                                            setVideoLoading(index, false)
+                                          })
+                                      } else {
+                                        el.addEventListener('canplay', () => {
+                                          el.currentTime = 0
+                                          el.play()
+                                            .then(() => {
+                                              setVideoPlaying(index, true)
+                                              setVideoLoading(index, false)
+                                              setVideoReady(index, true)
+                                            })
+                                            .catch(() => {
+                                              setVideoLoading(index, false)
+                                            })
+                                        }, { once: true })
+                                      }
+                                    }
+
+                                    // Set source and auto-play
+                                    if (!el.src || el.src === '') {
+                                      el.src = videoSources[index]
+                                      el.load()
+                                    }
+
+                                    // Try to play when ready
+                                    if (el.readyState >= 1) {
+                                      autoPlay()
+                                    } else {
+                                      el.addEventListener('loadeddata', autoPlay, { once: true })
+                                    }
                                   } catch (err) {
                                     console.error('Error setting video ref:', err)
                                   }
                                 }
-                              }" :src="videoSources[index]" :data-video-index="index" data-video-type="mobile"
+                              }" :src="videoStarted[index] ? videoSources[index] : undefined" :data-video-index="index"
+                                data-video-type="mobile"
                                 class="w-full h-full object-cover transition-opacity duration-500"
                                 :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
-                                :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
+                                preload="auto" @loadstart="setVideoLoading(index, true)"
                                 @loadedmetadata="onVideoLoaded(index)"
                                 @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                                 @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
                                 @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
 
-                              <!-- Play Button Overlay -->
-                              <button v-if="!videoPlaying[index] && videoReady[index]" @click.stop="playVideo(index)"
+                              <!-- Play Button Overlay (shown on placeholder image) -->
+                              <button v-if="!videoStarted[index]" @click.stop="startVideo(index)"
+                                class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-40">
+                                <div
+                                  class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
+                                  <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                              </button>
+                              <!-- Play Button (shown when video ready but paused) -->
+                              <button v-else-if="!videoPlaying[index] && videoReady[index]"
+                                @click.stop="playVideo(index)"
                                 class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-10">
                                 <div
                                   class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
@@ -104,7 +164,7 @@
                                 </div>
                               </button>
                               <!-- Pause Button (shown when playing) -->
-                              <button v-else @click.stop="pauseVideo(index)"
+                              <button v-else-if="videoPlaying[index]" @click.stop="pauseVideo(index)"
                                 class="absolute inset-0 flex items-center justify-center bg-transparent hover:bg-black/10 transition-all duration-200 group opacity-0 hover:opacity-100 z-10">
                                 <div
                                   class="w-16 h-16 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all duration-200">
@@ -157,16 +217,21 @@
                       <!-- Video Container -->
                       <div
                         class="relative w-full bg-gradient-to-br from-green-50 to-white aspect-[9/19.5] overflow-hidden">
-                        <!-- Placeholder/Loading State -->
-                        <div v-if="!videoReady[index]"
-                          class="absolute inset-0 bg-gradient-to-br from-green-50 to-white flex items-center justify-center z-0">
+                        <!-- Static Image Placeholder (shown before video starts) -->
+                        <div v-if="!videoStarted[index]" class="absolute inset-0 z-20 flex items-center justify-center">
+                          <img :src="heroPlaceholder" alt="Video placeholder" class="w-full h-full object-cover" />
+                        </div>
+
+                        <!-- Loading Spinner (shown when video is loading but not started) -->
+                        <div v-if="videoLoading[index] && !videoStarted[index]"
+                          class="absolute inset-0 bg-black/20 flex items-center justify-center z-30">
                           <div
                             class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
                           </div>
                         </div>
 
-                        <!-- Video Element -->
-                        <video :ref="el => {
+                        <!-- Video Element (only shown after user clicks play) -->
+                        <video v-if="videoStarted[index]" :ref="el => {
                           if (el) {
                             try {
                               // Ensure array is initialized
@@ -177,22 +242,72 @@
                               }
                               el.setAttribute('data-video-index', index)
                               el.setAttribute('data-video-type', 'desktop')
-                              setVideoLoading(index, true)
+
+                              // Auto-play when video is ready (after user clicked start)
+                              const autoPlay = () => {
+                                if (el.readyState >= 2) {
+                                  el.currentTime = 0
+                                  el.play()
+                                    .then(() => {
+                                      setVideoPlaying(index, true)
+                                      setVideoLoading(index, false)
+                                      setVideoReady(index, true)
+                                    })
+                                    .catch(() => {
+                                      setVideoLoading(index, false)
+                                    })
+                                } else {
+                                  el.addEventListener('canplay', () => {
+                                    el.currentTime = 0
+                                    el.play()
+                                      .then(() => {
+                                        setVideoPlaying(index, true)
+                                        setVideoLoading(index, false)
+                                        setVideoReady(index, true)
+                                      })
+                                      .catch(() => {
+                                        setVideoLoading(index, false)
+                                      })
+                                  }, { once: true })
+                                }
+                              }
+
+                              // Set source and auto-play
+                              if (!el.src || el.src === '') {
+                                el.src = videoSources[index]
+                                el.load()
+                              }
+
+                              // Try to play when ready
+                              if (el.readyState >= 1) {
+                                autoPlay()
+                              } else {
+                                el.addEventListener('loadeddata', autoPlay, { once: true })
+                              }
                             } catch (err) {
                               console.error('Error setting video ref:', err)
                             }
                           }
-                        }" :src="videoSources[index]" :data-video-index="index" data-video-type="desktop"
-                          class="w-full h-full object-cover transition-opacity duration-500"
-                          :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
-                          :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
-                          @loadedmetadata="onVideoLoaded(index)"
+                        }" :src="videoStarted[index] ? videoSources[index] : undefined" :data-video-index="index"
+                          data-video-type="desktop" class="w-full h-full object-cover transition-opacity duration-500"
+                          :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline preload="auto"
+                          @loadstart="setVideoLoading(index, true)" @loadedmetadata="onVideoLoaded(index)"
                           @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                           @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
                           @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
 
-                        <!-- Play Button Overlay -->
-                        <button v-if="!videoPlaying[index] && videoReady[index]" @click="playVideo(index)"
+                        <!-- Play Button Overlay (shown on placeholder image) -->
+                        <button v-if="!videoStarted[index]" @click="startVideo(index)"
+                          class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-40">
+                          <div
+                            class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
+                            <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </div>
+                        </button>
+                        <!-- Play Button (shown when video ready but paused) -->
+                        <button v-else-if="!videoPlaying[index] && videoReady[index]" @click="playVideo(index)"
                           class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-10">
                           <div
                             class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
@@ -202,7 +317,7 @@
                           </div>
                         </button>
                         <!-- Pause Button (shown when playing) -->
-                        <button v-else @click="pauseVideo(index)"
+                        <button v-else-if="videoPlaying[index]" @click="pauseVideo(index)"
                           class="absolute inset-0 flex items-center justify-center bg-transparent hover:bg-black/10 transition-all duration-200 group opacity-0 hover:opacity-100">
                           <div
                             class="w-16 h-16 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all duration-200">
@@ -305,6 +420,9 @@ import chatbotVideo from './assets/video/chatbot.MP4'
 import exportImportVideo from './assets/video/exportImport.MP4'
 import chartVideo from './assets/video/chart.MP4'
 
+// Placeholder image import
+import heroPlaceholder from './assets/hero.png'
+
 const { t } = useI18n()
 const { elementRef: sectionRef, isVisible } = useScrollAnimation()
 
@@ -356,6 +474,8 @@ const videoRefs = ref([])
 const videoPlaying = ref({})
 const videoReady = ref({}) // Track if video is ready to show (loaded first frame)
 const videoLoading = ref({}) // Track video loading state
+const videoShouldLoad = ref({}) // Track which videos should be loaded (mobile optimization)
+const videoStarted = ref({}) // Track if video has been started (user clicked play)
 const stepRefs = ref([])
 const stepperRef = ref(null)
 const showStepper = ref(true)
@@ -368,6 +488,7 @@ let scrollHandler = null
 let isScrolling = false
 let scrollTimeout = null
 let mobileObserver = null // IntersectionObserver for mobile slides
+let mobileVideoObserver = null // IntersectionObserver specifically for video lazy loading
 
 // Helper functions to safely access reactive objects
 const setVideoLoading = (index, value) => {
@@ -406,6 +527,13 @@ const initializeVideoState = () => {
       setVideoPlaying(i, false)
       setVideoReady(i, false)
       setVideoLoading(i, false)
+      videoStarted.value[i] = false // Video not started yet
+      // Mobile: Only load first video initially, others wait for intersection
+      if (i === 0) {
+        videoShouldLoad.value[i] = true
+      } else {
+        videoShouldLoad.value[i] = false
+      }
     }
   } catch (err) {
     console.error('Error initializing video state:', err)
@@ -414,8 +542,19 @@ const initializeVideoState = () => {
       setVideoPlaying(i, false)
       setVideoReady(i, false)
       setVideoLoading(i, false)
+      videoShouldLoad.value[i] = i === 0
     }
   }
+}
+
+// Check if video should be loaded (mobile optimization)
+const shouldLoadVideo = (index) => {
+  // Desktop: load all videos
+  if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+    return true
+  }
+  // Mobile: only load if marked for loading
+  return videoShouldLoad.value[index] === true
 }
 
 // Calculate swiper width based on viewport
@@ -472,6 +611,106 @@ const onVideoLoaded = (index) => {
     // Initialize videoPlaying state
     setVideoPlaying(index, false)
   }
+}
+
+// Start video (first time user clicks play - shows placeholder image first)
+const startVideo = (index) => {
+  // Mark video as started immediately so video element is rendered
+  videoStarted.value[index] = true
+  setVideoLoading(index, true)
+
+  // Mark video for loading
+  if (!shouldLoadVideo(index)) {
+    videoShouldLoad.value[index] = true
+  }
+
+  // Use nextTick and wait for Vue to render the video element
+  nextTick(() => {
+    // Use a small delay to ensure DOM is updated
+    setTimeout(() => {
+      // Find video element - try multiple methods
+      const isMobile = window.innerWidth < 1024
+      const videoType = isMobile ? 'mobile' : 'desktop'
+      let video = null
+
+      // Method 1: Query by data attributes
+      video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
+
+      // Method 2: Query by index only
+      if (!video) {
+        video = document.querySelector(`video[data-video-index="${index}"]`)
+      }
+
+      // Method 3: Use refs
+      if (!video && videoRefs.value && videoRefs.value[index]) {
+        video = videoRefs.value[index]
+      }
+
+      // Method 4: Query all videos and find by index
+      if (!video) {
+        const allVideos = document.querySelectorAll('video')
+        allVideos.forEach(v => {
+          const vIndex = parseInt(v.getAttribute('data-video-index'))
+          const vType = v.getAttribute('data-video-type')
+          if (vIndex === index && (!vType || vType === videoType)) {
+            video = v
+          }
+        })
+      }
+
+      // If still not found, wait a bit more and retry
+      if (!video) {
+        setTimeout(() => {
+          startVideo(index)
+        }, 150)
+        return
+      }
+
+      // Set video source if not already set
+      if (!video.src || video.src === '' || !video.src.includes(videoSources[index])) {
+        video.src = videoSources[index]
+        video.load()
+      }
+
+      // Function to play video when ready
+      const playWhenReady = () => {
+        video.currentTime = 0
+        const playPromise = video.play()
+
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setVideoPlaying(index, true)
+              setVideoLoading(index, false)
+              setVideoReady(index, true)
+            })
+            .catch((err) => {
+              console.error('Error playing video:', err)
+              setVideoLoading(index, false)
+            })
+        } else {
+          // Fallback for older browsers
+          setVideoPlaying(index, true)
+          setVideoLoading(index, false)
+          setVideoReady(index, true)
+        }
+      }
+
+      // Check if video is already ready
+      if (video.readyState >= 2) {
+        // Video has enough data to play
+        playWhenReady()
+      } else if (video.readyState >= 1) {
+        // Video has metadata, wait for data
+        video.addEventListener('canplay', playWhenReady, { once: true })
+      } else {
+        // Video not loaded yet, wait for loadeddata then canplay
+        video.addEventListener('loadeddata', () => {
+          video.addEventListener('canplay', playWhenReady, { once: true })
+        }, { once: true })
+      }
+    }, 100) // Increased delay to ensure DOM is ready
+  })
 }
 
 // Play video
@@ -629,7 +868,8 @@ const onSwiperScroll = () => {
     let newIndex = Math.round(scrollLeft / totalSlideWidth)
 
     // Ensure index is within bounds
-    newIndex = Math.max(0, Math.min(newIndex, t.features.steps.length - 1))
+    const stepsLength = (t && t.features && t.features.steps && t.features.steps.length) || 6
+    newIndex = Math.max(0, Math.min(newIndex, stepsLength - 1))
 
     if (newIndex !== activeStep.value) {
       activeStep.value = newIndex
@@ -669,11 +909,15 @@ onMounted(() => {
     setTimeout(() => {
       const slides = slideRefs.value.filter(el => el)
       if (slides.length > 0 && swiperContainer.value) {
-        // Clean up existing observer
+        // Clean up existing observers
         if (mobileObserver) {
           mobileObserver.disconnect()
         }
+        if (mobileVideoObserver) {
+          mobileVideoObserver.disconnect()
+        }
 
+        // Observer for slide visibility (active step detection)
         mobileObserver = new IntersectionObserver(
           (entries) => {
             let maxRatio = 0
@@ -685,12 +929,6 @@ onMounted(() => {
                 const index = slides.indexOf(entry.target)
                 if (index !== -1) {
                   mostVisibleIndex = index
-
-                  // Lazy load video when slide becomes visible
-                  const video = entry.target.querySelector('video')
-                  if (video && video.readyState === 0) {
-                    video.load()
-                  }
                 }
               }
             })
@@ -706,19 +944,53 @@ onMounted(() => {
           }
         )
 
+        // Separate observer for video lazy loading (more aggressive)
+        mobileVideoObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const slide = entry.target.closest('.swiper-slide')
+                if (slide) {
+                  const index = slides.indexOf(slide)
+                  if (index !== -1 && !videoShouldLoad.value[index]) {
+                    // Mark video for loading
+                    videoShouldLoad.value[index] = true
+
+                    // Find and load video
+                    const video = slide.querySelector('video[data-video-type="mobile"]')
+                    if (video && !video.src) {
+                      video.src = videoSources[index]
+                      video.load()
+                    }
+                  }
+                }
+              }
+            })
+          },
+          {
+            root: swiperContainer.value,
+            rootMargin: '50% 0px 50% 0px', // Load videos when they're 50% away from viewport
+            threshold: 0.1,
+          }
+        )
+
         slides.forEach((slide) => {
           mobileObserver.observe(slide)
+          mobileVideoObserver.observe(slide)
         })
       }
 
-      // Preload first video only (mobile)
-      initializeVideoRefs()
-      if (videoRefs.value && videoRefs.value[0]) {
-        const firstVideo = document.querySelector('video[data-video-index="0"][data-video-type="mobile"]')
-        if (firstVideo) {
-          firstVideo.load()
+      // Preload first video only (mobile) - with delay to not block initial render
+      setTimeout(() => {
+        initializeVideoRefs()
+        if (videoRefs.value && videoRefs.value[0]) {
+          const firstVideo = document.querySelector('video[data-video-index="0"][data-video-type="mobile"]')
+          if (firstVideo && !firstVideo.src) {
+            firstVideo.src = videoSources[0]
+            firstVideo.load()
+          }
         }
-      }
+      }, 300) // Small delay to let initial render complete
     }, 200)
   })
 
@@ -816,6 +1088,9 @@ onUnmounted(() => {
   }
   if (mobileObserver) {
     mobileObserver.disconnect()
+  }
+  if (mobileVideoObserver) {
+    mobileVideoObserver.disconnect()
   }
   if (scrollHandler) {
     window.removeEventListener('scroll', scrollHandler)
