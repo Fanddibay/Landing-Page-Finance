@@ -69,8 +69,8 @@ export function useMobileSwiper(activeStep, stepsLength = 6) {
     }, 200)
   }
 
-  // Setup intersection observers for lazy loading and auto-play
-  const setupObservers = (markVideoForLoading, loadVideoSource, autoPlayVisibleVideo) => {
+  // Setup intersection observers for lazy loading only
+  const setupObservers = (markVideoForLoading, loadVideoSource) => {
     if (!swiperContainer.value) return
 
     const slides = slideRefs.value.filter(el => el)
@@ -111,8 +111,7 @@ export function useMobileSwiper(activeStep, stepsLength = 6) {
       }
     )
 
-    // Observer for video lazy loading and auto-play
-    // Video only plays when content is fully visible
+    // Observer for video lazy loading only (no auto-play trigger)
     if (markVideoForLoading) {
       mobileVideoObserver = new IntersectionObserver(
         (entries) => {
@@ -123,10 +122,8 @@ export function useMobileSwiper(activeStep, stepsLength = 6) {
             const index = slides.indexOf(slide)
             if (index === -1) return
 
-            const isFullyVisible = entry.intersectionRatio >= 0.9 // 90% or more visible
-
             if (entry.isIntersecting) {
-              // Mark video for loading when slide becomes visible
+              // Mark video for loading when slide becomes visible (lazy loading)
               markVideoForLoading(index)
 
               // Load video source if needed
@@ -135,17 +132,12 @@ export function useMobileSwiper(activeStep, stepsLength = 6) {
                 loadVideoSource(video, index)
               }
             }
-
-            // Only auto-play when content is fully visible (90%+)
-            if (isFullyVisible && entry.isIntersecting && autoPlayVisibleVideo) {
-              setTimeout(() => autoPlayVisibleVideo(index), 200)
-            }
           })
         },
         {
           root: swiperContainer.value,
           rootMargin: '0px',
-          threshold: [0, 0.25, 0.5, 0.75, 0.9, 1.0], // Multiple thresholds for precise detection
+          threshold: 0.1, // Simple threshold for lazy loading
         }
       )
     }

@@ -53,7 +53,7 @@
                       <div class="w-48 md:w-56">
                         <div class="bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
                           <div class="bg-white rounded-[2rem] overflow-hidden relative">
-                            <!-- Video Container - Always render with lazy loading -->
+                            <!-- Video Container - Auto-load when visible -->
                             <FeatureVideoPlayer :index="index" video-type="mobile"
                               :video-src="shouldLoadVideo(index) ? videoSources[index] : undefined"
                               :placeholder="heroPlaceholder"
@@ -62,7 +62,6 @@
                               :video-loading="videoLoading[index]"
                               :set-video-ref="(el, idx, type) => setVideoRef(el, idx, type)" :start-video="startVideo"
                               :play-video="playVideo" :pause-video="pauseVideo" :on-video-loaded="onVideoLoaded"
-                              :handle-video-progress="handleVideoProgress" :set-video-loading="setVideoLoading"
                               :set-video-ready="setVideoReady" :set-video-playing="setVideoPlaying" />
                           </div>
                         </div>
@@ -107,7 +106,6 @@
                         :video-loading="videoLoading[index]"
                         :set-video-ref="(el, idx, type) => setVideoRef(el, idx, type)" :start-video="startVideo"
                         :play-video="playVideo" :pause-video="pauseVideo" :on-video-loaded="onVideoLoaded"
-                        :handle-video-progress="handleVideoProgress" :set-video-loading="setVideoLoading"
                         :set-video-ready="setVideoReady" :set-video-playing="setVideoPlaying" />
                     </div>
                   </div>
@@ -226,13 +224,10 @@ const {
   shouldLoadVideo,
   onVideoLoaded,
   startVideo,
-  handleVideoProgress,
   playVideo,
   pauseVideo,
   setVideoRef,
   markVideoForLoading,
-  autoPlayVisibleVideo,
-  setVideoLoading,
   setVideoReady,
   setVideoPlaying,
 } = useVideoPlayer(videoSources, stepsCount.value)
@@ -269,8 +264,8 @@ onMounted(() => {
   initializeVideoState()
 
   nextTick(() => {
-    // Setup mobile swiper observers with auto-play
-    setupObservers(markVideoForLoading, loadVideoSource, autoPlayVisibleVideo)
+    // Setup mobile swiper observers (lazy loading only)
+    setupObservers(markVideoForLoading, loadVideoSource)
 
     // Preload and auto-play first video (mobile)
     setTimeout(() => {
@@ -288,7 +283,7 @@ onMounted(() => {
 
     // Setup desktop stepper observers with auto-play
     setTimeout(() => {
-      setupStepperObservers(markVideoForLoading, autoPlayVisibleVideo)
+      setupStepperObservers(markVideoForLoading)
       // Auto-load and start first desktop video
       if (videoSources[0]) {
         markVideoForLoading(0)

@@ -15,8 +15,8 @@ export function useDesktopStepper(activeStep, stepRefs) {
     }
   }
 
-  // Setup intersection observers with auto-play callback
-  const setupObservers = (markVideoForLoading, autoPlayVisibleVideo) => {
+  // Setup intersection observers for lazy loading only
+  const setupObservers = (markVideoForLoading) => {
     const stepElements = stepRefs.value.filter(el => el)
     if (stepElements.length === 0) return
 
@@ -31,10 +31,8 @@ export function useDesktopStepper(activeStep, stepRefs) {
           maxRatio = entry.intersectionRatio
           mostVisibleIndex = index
 
-          const isFullyVisible = entry.intersectionRatio >= 0.9 // 90% or more visible
-
-          // Lazy load video when step becomes partially visible
-          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+          // Lazy load video when step becomes visible (no auto-play trigger)
+          if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
             const video = entry.target.querySelector('video')
             if (video) {
               // Mark for loading if not already loaded
@@ -46,14 +44,6 @@ export function useDesktopStepper(activeStep, stepRefs) {
               if (video.readyState === 0) {
                 video.load()
               }
-            }
-          }
-
-          // Only auto-play when content is fully visible (90%+)
-          if (entry.isIntersecting && isFullyVisible && autoPlayVisibleVideo) {
-            const video = entry.target.querySelector('video')
-            if (video) {
-              setTimeout(() => autoPlayVisibleVideo(index), 200)
             }
           }
         }

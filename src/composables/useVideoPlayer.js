@@ -46,7 +46,7 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     for (let i = 0; i < stepsCount; i++) {
       setVideoPlaying(i, false)
       setVideoReady(i, false)
-      setVideoLoading(i, false)
+      videoLoading.value[i] = false // Direct assignment for better performance
       videoStarted.value[i] = false // Track if video element is mounted
       // Desktop: load all videos, Mobile: lazy load
       videoShouldLoad.value[i] = typeof window !== 'undefined' && window.innerWidth >= 1024 ? true : i === 0
@@ -78,71 +78,71 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     return video
   }
 
-  // Video loaded handler - auto play when ready
+  // Video loaded handler - auto play directly when ready (no scroll trigger needed)
   const onVideoLoaded = (index) => {
     const video = getVideoElement(index)
-
     if (!video) return
 
     video.playbackRate = 1.25
+    setVideoReady(index, true)
 
-    const attemptAutoPlay = () => {
-      if (video.readyState >= 2) {
-        // Show first frame and auto play
-        video.currentTime = 0.1
-        setVideoReady(index, true)
-        setVideoLoading(index, false)
-
-        // Auto play when ready
-        const playWhenReady = () => {
-          if (video.readyState >= 3) {
-            video.play().then(() => {
-              setVideoPlaying(index, true)
-              setVideoLoading(index, false)
-            }).catch(() => {
-              // Auto-play blocked, keep paused
-              video.pause()
-              setVideoPlaying(index, false)
-              setVideoLoading(index, false)
-            })
-          }
-        }
-
-        if (video.readyState >= 3) {
-          playWhenReady()
-        } else {
-          video.addEventListener('canplaythrough', playWhenReady, { once: true })
-        }
-      } else {
-        video.addEventListener('canplay', () => {
-          video.currentTime = 0.1
-          setVideoReady(index, true)
-          setVideoLoading(index, false)
-
-          // Attempt auto play
-          video.play().then(() => {
-            setVideoPlaying(index, true)
-            setVideoLoading(index, false)
-          }).catch(() => {
-            video.pause()
-            setVideoPlaying(index, false)
-            setVideoLoading(index, false)
-          })
-        }, { once: true })
-      }
+    // Ensure video is marked as started for auto-play
+    if (!videoStarted.value[index]) {
+      videoStarted.value[index] = true
     }
 
-    if (video.readyState >= 1) {
-      attemptAutoPlay()
+    // Auto-play directly when ready
+    if (video.readyState >= 2) {
+      // Stop other videos first
+      document.querySelectorAll('video').forEach((v) => {
+        if (v !== video && !v.paused) {
+          v.pause()
+          const vIndex = parseInt(v.getAttribute('data-video-index') || '-1')
+          if (vIndex >= 0 && vIndex !== index) {
+            setVideoPlaying(vIndex, false)
+          }
+        }
+      })
+
+      video.currentTime = 0
+      video.play().then(() => {
+        setVideoPlaying(index, true)
+      }).catch(() => {
+        // Auto-play blocked by browser policy
+        setVideoPlaying(index, false)
+      })
     } else {
-      video.addEventListener('loadeddata', attemptAutoPlay, { once: true })
+      // Wait for video to be ready, then play
+      const playWhenReady = () => {
+        document.querySelectorAll('video').forEach((v) => {
+          if (v !== video && !v.paused) {
+            v.pause()
+            const vIndex = parseInt(v.getAttribute('data-video-index') || '-1')
+            if (vIndex >= 0 && vIndex !== index) {
+              setVideoPlaying(vIndex, false)
+            }
+          }
+        })
+
+        video.currentTime = 0
+        video.play().then(() => {
+          setVideoPlaying(index, true)
+        }).catch(() => {
+          setVideoPlaying(index, false)
+        })
+      }
+
+      if (video.readyState >= 3) {
+        playWhenReady()
+      } else {
+        video.addEventListener('canplay', playWhenReady, { once: true })
+      }
     }
   }
 
-  // Start video - load and prepare video element
+  // Start video - simplified for faster loading
   const startVideo = (index) => {
     videoStarted.value[index] = true
-    setVideoLoading(index, true)
 
     nextTick(() => {
       const video = getVideoElement(index)
@@ -154,65 +154,25 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
           video.load()
         }
 
-        // If already ready, trigger play
-        if (video.readyState >= 3) {
-          playVideo(index)
-        } else if (video.readyState >= 2) {
-          // Can play current frame
-          playVideo(index)
-        } else {
-          // Wait for video to be ready
-          const onCanPlay = () => {
-            playVideo(index)
-          }
-          video.addEventListener('canplay', onCanPlay, { once: true })
-          if (video.readyState === 0) {
-            video.load()
-          }
-        }
+        // Direct play attempt - video will handle buffering automatically
+        playVideo(index)
       } else {
-        // Fallback: try again after delay
-        setTimeout(() => {
-          if (shouldLoadVideo(index)) {
-            playVideo(index)
-          } else {
-            markVideoForLoading(index)
-          }
-        }, 100)
+        // Fallback: try again briefly
+        setTimeout(() => playVideo(index), 50)
       }
     })
   }
 
-  // Handle video progress
+  // Handle video progress - simplified (removed loading state tracking)
   const handleVideoProgress = (index, event) => {
-    const video = event.target
-    if (video && !video.paused && video.readyState >= 3) {
-      setVideoLoading(index, false)
-      return
-    }
-    if (video && video.buffered.length > 0) {
-      const bufferedEnd = video.buffered.end(video.buffered.length - 1)
-      const duration = video.duration
-      if (duration > 0) {
-        const bufferedPercent = (bufferedEnd / duration) * 100
-        if (bufferedPercent < 90 && video.paused) {
-          setVideoLoading(index, true)
-        } else {
-          setVideoLoading(index, false)
-        }
-      }
-    }
+    // No-op: Removed complex loading state tracking for better performance
+    // Browser handles buffering automatically
   }
 
-  // Play video
+  // Play video - simplified for faster execution
   const playVideo = (index) => {
-    setVideoLoading(index, true)
-
     const video = getVideoElement(index)
-    if (!video) {
-      setVideoLoading(index, false)
-      return
-    }
+    if (!video) return
 
     // Stop all other videos
     document.querySelectorAll('video').forEach((v) => {
@@ -225,72 +185,45 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
       }
     })
 
-    setVideoPlaying(index, false)
-
     // Ensure video source is loaded
     if (!video.src || video.src === '') {
       video.src = videoSources[index]
       video.load()
     }
 
-    // Ensure video is ready before playing
-    if (!videoReady.value[index] || videoReady.value[index] === undefined) {
+    // Direct play - browser handles buffering
+    if (video.readyState >= 1) {
+      // Reset to beginning
+      video.currentTime = 0
+      
+      // Play immediately
+      video.play().then(() => {
+        setVideoPlaying(index, true)
+      }).catch(() => {
+        // Auto-play blocked, wait for canplay
+        const onCanPlay = () => {
+          video.play().then(() => {
+            setVideoPlaying(index, true)
+          }).catch(() => {
+            setVideoPlaying(index, false)
+          })
+        }
+        video.addEventListener('canplay', onCanPlay, { once: true })
+      })
+    } else {
+      // Wait for video metadata, then play
       const onCanPlay = () => {
         video.currentTime = 0
         video.play().then(() => {
           setVideoPlaying(index, true)
-          setVideoLoading(index, false)
         }).catch(() => {
           setVideoPlaying(index, false)
-          setVideoLoading(index, false)
         })
-        video.removeEventListener('canplay', onCanPlay)
       }
-
-      if (video.readyState >= 2) {
-        video.currentTime = 0
-        video.play().then(() => {
-          setVideoPlaying(index, true)
-          setVideoLoading(index, false)
-        }).catch(() => {
-          setVideoPlaying(index, false)
-          setVideoLoading(index, false)
-        })
-      } else {
-        video.addEventListener('canplay', onCanPlay, { once: true })
-        if (video.readyState === 0) {
-          video.load()
-        }
+      video.addEventListener('canplay', onCanPlay, { once: true })
+      if (video.readyState === 0) {
+        video.load()
       }
-      return
-    }
-
-    // Reset to beginning for smooth start
-    if (video.readyState >= 2) {
-      video.currentTime = 0
-    }
-
-    // Play the video
-    try {
-      const playPromise = video.play()
-
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setVideoPlaying(index, true)
-            setVideoLoading(index, false)
-          })
-          .catch(() => {
-            setVideoPlaying(index, false)
-            setVideoLoading(index, false)
-          })
-      } else {
-        setVideoPlaying(index, true)
-        setVideoLoading(index, false)
-      }
-    } catch (err) {
-      setVideoPlaying(index, false)
-      setVideoLoading(index, false)
     }
   }
 
@@ -319,10 +252,13 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     }
   }
 
-  // Mark video for loading (used by lazy loading)
+  // Mark video for loading (used by lazy loading) - also auto-play when loaded
   const markVideoForLoading = (index) => {
     if (!videoShouldLoad.value[index]) {
       videoShouldLoad.value[index] = true
+      
+      // Mark video as started to enable auto-play
+      videoStarted.value[index] = true
       
       // If video element exists, load it
       nextTick(() => {
@@ -335,24 +271,32 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     }
   }
 
-  // Auto play visible videos (called when video becomes fully visible)
+  // Auto play visible videos - ensures video is loaded and plays automatically
   const autoPlayVisibleVideo = (index) => {
-    const video = getVideoElement(index)
-    if (!video) return
-
-    // Don't play if already playing
-    if (!video.paused) {
-      setVideoPlaying(index, true)
-      return
-    }
-
-    // Ensure video is started (mounted)
+    // Mark video as started first
     if (!videoStarted.value[index]) {
       videoStarted.value[index] = true
     }
 
-    // Only auto-play if video is ready
-    if (videoReady.value[index] || video.readyState >= 2) {
+    // Mark for loading to ensure source is set
+    markVideoForLoading(index)
+
+    // Use startVideo which handles loading and playing
+    // This ensures video element is properly initialized before playing
+    nextTick(() => {
+      const video = getVideoElement(index)
+      if (!video) {
+        // If video element doesn't exist yet, try startVideo which will create it
+        startVideo(index)
+        return
+      }
+
+      // Ensure source is loaded
+      if (!video.src || video.src === '') {
+        video.src = videoSources[index]
+        video.load()
+      }
+
       // Stop all other videos first
       document.querySelectorAll('video').forEach((v) => {
         if (v !== video && !v.paused) {
@@ -364,40 +308,41 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
         }
       })
 
-      // Play the video
-      video.play().then(() => {
-        setVideoPlaying(index, true)
-        setVideoLoading(index, false)
-      }).catch(() => {
-        // Auto-play blocked by browser policy (user interaction required)
-        setVideoPlaying(index, false)
-        setVideoLoading(index, false)
-      })
-    } else {
-      // Wait for video to be ready, then play
-      const onCanPlay = () => {
-        document.querySelectorAll('video').forEach((v) => {
-          if (v !== video && !v.paused) {
-            v.pause()
-            const vIndex = parseInt(v.getAttribute('data-video-index') || '-1')
-            if (vIndex >= 0 && vIndex !== index) {
-              setVideoPlaying(vIndex, false)
-            }
-          }
-        })
-
+      // Play immediately if ready, otherwise wait
+      if (video.readyState >= 2) {
+        video.currentTime = 0
         video.play().then(() => {
           setVideoPlaying(index, true)
-          setVideoLoading(index, false)
         }).catch(() => {
           setVideoPlaying(index, false)
-          setVideoLoading(index, false)
         })
-        video.removeEventListener('canplay', onCanPlay)
+      } else if (video.readyState >= 1) {
+        // Metadata loaded, wait for canplay
+        const onCanPlay = () => {
+          video.currentTime = 0
+          video.play().then(() => {
+            setVideoPlaying(index, true)
+          }).catch(() => {
+            setVideoPlaying(index, false)
+          })
+        }
+        video.addEventListener('canplay', onCanPlay, { once: true })
+      } else {
+        // Not loaded yet, wait for loadedmetadata then canplay
+        const onLoaded = () => {
+          const onCanPlay = () => {
+            video.currentTime = 0
+            video.play().then(() => {
+              setVideoPlaying(index, true)
+            }).catch(() => {
+              setVideoPlaying(index, false)
+            })
+          }
+          video.addEventListener('canplay', onCanPlay, { once: true })
+        }
+        video.addEventListener('loadedmetadata', onLoaded, { once: true })
       }
-
-      video.addEventListener('canplay', onCanPlay, { once: true })
-    }
+    })
   }
 
   return {
