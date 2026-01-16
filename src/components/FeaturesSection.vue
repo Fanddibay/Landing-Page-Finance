@@ -66,11 +66,35 @@
                                   class="w-full h-full object-cover" />
                               </div>
 
-                              <!-- Loading Spinner (shown when video is loading but not started) -->
+                              <!-- Loading Animation (shown when video is loading but not started) -->
                               <div v-if="videoLoading[index] && !videoStarted[index]"
-                                class="absolute inset-0 bg-black/20 flex items-center justify-center z-30">
-                                <div
-                                  class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
+                                class="absolute inset-0 bg-gradient-to-br from-green-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-30 transition-opacity duration-300">
+                                <div class="flex flex-col items-center gap-4">
+                                  <!-- Animated loader with pulsing circles -->
+                                  <div class="relative w-20 h-20">
+                                    <!-- Outer rotating ring -->
+                                    <div class="absolute inset-0 border-4 border-primary-200 rounded-full"></div>
+                                    <div
+                                      class="absolute inset-0 border-4 border-primary-600 border-t-transparent rounded-full animate-spin">
+                                    </div>
+                                    <!-- Inner pulsing circle -->
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                      <div
+                                        class="w-10 h-10 bg-primary-600 rounded-full animate-pulse-loader opacity-80">
+                                      </div>
+                                    </div>
+                                    <!-- Center dot -->
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                      <div class="w-4 h-4 bg-primary-700 rounded-full animate-ping-loader">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!-- Loading text -->
+                                  <div class="text-center">
+                                    <p class="text-sm font-medium text-primary-700 animate-pulse-text">
+                                      Memuat video...
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
 
@@ -86,57 +110,15 @@
                                     }
                                     el.setAttribute('data-video-index', index)
                                     el.setAttribute('data-video-type', 'mobile')
-
-                                    // Auto-play when video is ready (after user clicked start)
-                                    const autoPlay = () => {
-                                      if (el.readyState >= 2) {
-                                        el.currentTime = 0
-                                        el.play()
-                                          .then(() => {
-                                            setVideoPlaying(index, true)
-                                            setVideoLoading(index, false)
-                                            setVideoReady(index, true)
-                                          })
-                                          .catch(() => {
-                                            setVideoLoading(index, false)
-                                          })
-                                      } else {
-                                        el.addEventListener('canplay', () => {
-                                          el.currentTime = 0
-                                          el.play()
-                                            .then(() => {
-                                              setVideoPlaying(index, true)
-                                              setVideoLoading(index, false)
-                                              setVideoReady(index, true)
-                                            })
-                                            .catch(() => {
-                                              setVideoLoading(index, false)
-                                            })
-                                        }, { once: true })
-                                      }
-                                    }
-
-                                    // Set source and auto-play
-                                    if (!el.src || el.src === '') {
-                                      el.src = videoSources[index]
-                                      el.load()
-                                    }
-
-                                    // Try to play when ready
-                                    if (el.readyState >= 1) {
-                                      autoPlay()
-                                    } else {
-                                      el.addEventListener('loadeddata', autoPlay, { once: true })
-                                    }
                                   } catch (err) {
                                     console.error('Error setting video ref:', err)
                                   }
                                 }
-                              }" :src="videoStarted[index] ? videoSources[index] : undefined" :data-video-index="index"
-                                data-video-type="mobile"
+                              }" :src="shouldLoadVideo(index) ? videoSources[index] : undefined"
+                                :data-video-index="index" data-video-type="mobile"
                                 class="w-full h-full object-cover transition-opacity duration-500"
                                 :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
-                                preload="auto" @loadstart="setVideoLoading(index, true)"
+                                :preload="index === 0 ? 'auto' : 'none'" @loadstart="setVideoLoading(index, true)"
                                 @loadedmetadata="onVideoLoaded(index)"
                                 @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                                 @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
@@ -222,11 +204,34 @@
                           <img :src="heroPlaceholder" alt="Video placeholder" class="w-full h-full object-cover" />
                         </div>
 
-                        <!-- Loading Spinner (shown when video is loading but not started) -->
+                        <!-- Loading Animation (shown when video is loading but not started) -->
                         <div v-if="videoLoading[index] && !videoStarted[index]"
-                          class="absolute inset-0 bg-black/20 flex items-center justify-center z-30">
-                          <div
-                            class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
+                          class="absolute inset-0 bg-gradient-to-br from-green-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-30 transition-opacity duration-300">
+                          <div class="flex flex-col items-center gap-4">
+                            <!-- Animated loader with pulsing circles -->
+                            <div class="relative w-20 h-20">
+                              <!-- Outer rotating ring -->
+                              <div class="absolute inset-0 border-4 border-primary-200 rounded-full"></div>
+                              <div
+                                class="absolute inset-0 border-4 border-primary-600 border-t-transparent rounded-full animate-spin">
+                              </div>
+                              <!-- Inner pulsing circle -->
+                              <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-10 h-10 bg-primary-600 rounded-full animate-pulse-loader opacity-80">
+                                </div>
+                              </div>
+                              <!-- Center dot -->
+                              <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-4 h-4 bg-primary-700 rounded-full animate-ping-loader">
+                                </div>
+                              </div>
+                            </div>
+                            <!-- Loading text -->
+                            <div class="text-center">
+                              <p class="text-sm font-medium text-primary-700 animate-pulse-text">
+                                Memuat video...
+                              </p>
+                            </div>
                           </div>
                         </div>
 
@@ -242,56 +247,15 @@
                               }
                               el.setAttribute('data-video-index', index)
                               el.setAttribute('data-video-type', 'desktop')
-
-                              // Auto-play when video is ready (after user clicked start)
-                              const autoPlay = () => {
-                                if (el.readyState >= 2) {
-                                  el.currentTime = 0
-                                  el.play()
-                                    .then(() => {
-                                      setVideoPlaying(index, true)
-                                      setVideoLoading(index, false)
-                                      setVideoReady(index, true)
-                                    })
-                                    .catch(() => {
-                                      setVideoLoading(index, false)
-                                    })
-                                } else {
-                                  el.addEventListener('canplay', () => {
-                                    el.currentTime = 0
-                                    el.play()
-                                      .then(() => {
-                                        setVideoPlaying(index, true)
-                                        setVideoLoading(index, false)
-                                        setVideoReady(index, true)
-                                      })
-                                      .catch(() => {
-                                        setVideoLoading(index, false)
-                                      })
-                                  }, { once: true })
-                                }
-                              }
-
-                              // Set source and auto-play
-                              if (!el.src || el.src === '') {
-                                el.src = videoSources[index]
-                                el.load()
-                              }
-
-                              // Try to play when ready
-                              if (el.readyState >= 1) {
-                                autoPlay()
-                              } else {
-                                el.addEventListener('loadeddata', autoPlay, { once: true })
-                              }
                             } catch (err) {
                               console.error('Error setting video ref:', err)
                             }
                           }
-                        }" :src="videoStarted[index] ? videoSources[index] : undefined" :data-video-index="index"
-                          data-video-type="desktop" class="w-full h-full object-cover transition-opacity duration-500"
-                          :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline preload="auto"
-                          @loadstart="setVideoLoading(index, true)" @loadedmetadata="onVideoLoaded(index)"
+                        }" :src="videoSources[index]" :data-video-index="index" data-video-type="desktop"
+                          class="w-full h-full object-cover transition-opacity duration-500"
+                          :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
+                          :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
+                          @loadedmetadata="onVideoLoaded(index)"
                           @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                           @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
                           @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
@@ -615,102 +579,38 @@ const onVideoLoaded = (index) => {
 
 // Start video (first time user clicks play - shows placeholder image first)
 const startVideo = (index) => {
-  // Mark video as started immediately so video element is rendered
+  // Mark video as started
   videoStarted.value[index] = true
   setVideoLoading(index, true)
 
-  // Mark video for loading
-  if (!shouldLoadVideo(index)) {
-    videoShouldLoad.value[index] = true
-  }
+  // Load video source if not already loaded
+  if (shouldLoadVideo(index)) {
+    // Find video element and set source
+    const isMobile = window.innerWidth < 1024
+    const videoType = isMobile ? 'mobile' : 'desktop'
+    let video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
 
-  // Use nextTick and wait for Vue to render the video element
-  nextTick(() => {
-    // Use a small delay to ensure DOM is updated
+    if (!video) {
+      video = document.querySelector(`video[data-video-index="${index}"]`)
+    }
+
+    if (video && !video.src) {
+      video.src = videoSources[index]
+      video.load()
+    }
+
+    // Wait a bit for video to start loading, then play
     setTimeout(() => {
-      // Find video element - try multiple methods
-      const isMobile = window.innerWidth < 1024
-      const videoType = isMobile ? 'mobile' : 'desktop'
-      let video = null
-
-      // Method 1: Query by data attributes
-      video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
-
-      // Method 2: Query by index only
-      if (!video) {
-        video = document.querySelector(`video[data-video-index="${index}"]`)
-      }
-
-      // Method 3: Use refs
-      if (!video && videoRefs.value && videoRefs.value[index]) {
-        video = videoRefs.value[index]
-      }
-
-      // Method 4: Query all videos and find by index
-      if (!video) {
-        const allVideos = document.querySelectorAll('video')
-        allVideos.forEach(v => {
-          const vIndex = parseInt(v.getAttribute('data-video-index'))
-          const vType = v.getAttribute('data-video-type')
-          if (vIndex === index && (!vType || vType === videoType)) {
-            video = v
-          }
-        })
-      }
-
-      // If still not found, wait a bit more and retry
-      if (!video) {
-        setTimeout(() => {
-          startVideo(index)
-        }, 150)
-        return
-      }
-
-      // Set video source if not already set
-      if (!video.src || video.src === '' || !video.src.includes(videoSources[index])) {
-        video.src = videoSources[index]
-        video.load()
-      }
-
-      // Function to play video when ready
-      const playWhenReady = () => {
-        video.currentTime = 0
-        const playPromise = video.play()
-
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setVideoPlaying(index, true)
-              setVideoLoading(index, false)
-              setVideoReady(index, true)
-            })
-            .catch((err) => {
-              console.error('Error playing video:', err)
-              setVideoLoading(index, false)
-            })
-        } else {
-          // Fallback for older browsers
-          setVideoPlaying(index, true)
-          setVideoLoading(index, false)
-          setVideoReady(index, true)
-        }
-      }
-
-      // Check if video is already ready
-      if (video.readyState >= 2) {
-        // Video has enough data to play
-        playWhenReady()
-      } else if (video.readyState >= 1) {
-        // Video has metadata, wait for data
-        video.addEventListener('canplay', playWhenReady, { once: true })
-      } else {
-        // Video not loaded yet, wait for loadeddata then canplay
-        video.addEventListener('loadeddata', () => {
-          video.addEventListener('canplay', playWhenReady, { once: true })
-        }, { once: true })
-      }
-    }, 100) // Increased delay to ensure DOM is ready
-  })
+      playVideo(index)
+    }, 100)
+  } else {
+    // Mark for loading
+    videoShouldLoad.value[index] = true
+    // Play will be handled after video loads
+    setTimeout(() => {
+      playVideo(index)
+    }, 300)
+  }
 }
 
 // Play video
@@ -1130,5 +1030,68 @@ onUnmounted(() => {
   .swiper-container {
     scroll-behavior: auto;
   }
+}
+
+/* Video loading animations */
+@keyframes pulse-loader {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes ping-loader {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes pulse-text {
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-loader {
+  animation: pulse-loader 1.5s ease-in-out infinite;
+}
+
+.animate-ping-loader {
+  animation: ping-loader 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-pulse-text {
+  animation: pulse-text 2s ease-in-out infinite;
+}
+
+/* Smooth transitions for loading overlay */
+.loading-overlay-enter-active,
+.loading-overlay-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.loading-overlay-enter-from,
+.loading-overlay-leave-to {
+  opacity: 0;
 }
 </style>
