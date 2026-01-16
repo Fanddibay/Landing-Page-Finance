@@ -75,7 +75,7 @@
                   </div>
 
                   <!-- Iframe -->
-                  <iframe v-show="!isLoading && !hasError" ref="demoIframe" src="https://financial-webapp.netlify.app/"
+                  <iframe v-show="!isLoading && !hasError" ref="demoIframe" src="https://financial-webapp.pages.dev/"
                     class="w-full h-full border-0" frameborder="0" allow="clipboard-read; clipboard-write"
                     allowfullscreen @load="handleIframeLoad" @error="handleIframeError" title="Financial Web App Demo">
                   </iframe>
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Open in New Tab Button -->
-            <a href="https://financial-webapp.netlify.app/" target="_blank" rel="noopener noreferrer"
+            <a href="https://financial-webapp.pages.dev/" target="_blank" rel="noopener noreferrer"
               class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-white text-primary-800 text-xs font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-green-50 transition-all duration-200 opacity-0 group-hover:opacity-100 flex items-center gap-2 whitespace-nowrap">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

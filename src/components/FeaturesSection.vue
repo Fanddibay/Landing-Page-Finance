@@ -132,8 +132,10 @@
                                 @waiting="setVideoLoading(index, true)" @progress="handleVideoProgress(index, $event)"
                                 @loadedmetadata="onVideoLoaded(index)"
                                 @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
-                                @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
-                                @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
+                                @playing="setVideoLoading(index, false)"
+                                @play="setVideoPlaying(index, true); setVideoLoading(index, false)"
+                                @pause="setVideoPlaying(index, false)" @ended="setVideoPlaying(index, false)"
+                                @click.stop="playVideo(index)"></video>
 
                               <!-- Play Button Overlay (shown on placeholder image) -->
                               <button v-if="!videoStarted[index]" @click.stop="startVideo(index)"
@@ -280,8 +282,10 @@
                           @waiting="setVideoLoading(index, true)" @progress="handleVideoProgress(index, $event)"
                           @loadedmetadata="onVideoLoaded(index)"
                           @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
-                          @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
-                          @ended="setVideoPlaying(index, false)" @click.stop="playVideo(index)"></video>
+                          @playing="setVideoLoading(index, false)"
+                          @play="setVideoPlaying(index, true); setVideoLoading(index, false)"
+                          @pause="setVideoPlaying(index, false)" @ended="setVideoPlaying(index, false)"
+                          @click.stop="playVideo(index)"></video>
 
                         <!-- Play Button Overlay (shown on placeholder image) -->
                         <button v-if="!videoStarted[index]" @click="startVideo(index)"
@@ -606,46 +610,67 @@ const startVideo = (index) => {
   videoStarted.value[index] = true
   setVideoLoading(index, true)
 
-  // Load video source if not already loaded
-  if (shouldLoadVideo(index)) {
-    // Find video element and set source
-    const isMobile = window.innerWidth < 1024
-    const videoType = isMobile ? 'mobile' : 'desktop'
-    let video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
+  // Use nextTick to ensure DOM is updated before accessing video element
+  nextTick(() => {
+    // Load video source if not already loaded
+    if (shouldLoadVideo(index)) {
+      // Find video element and set source
+      const isMobile = window.innerWidth < 1024
+      const videoType = isMobile ? 'mobile' : 'desktop'
+      let video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
 
-    if (!video) {
-      video = document.querySelector(`video[data-video-index="${index}"]`)
+      if (!video) {
+        video = document.querySelector(`video[data-video-index="${index}"]`)
+      }
+
+      if (video) {
+        if (!video.src || video.src === '') {
+          video.src = videoSources[index]
+          video.load()
+        }
+        // Try to play immediately if video is ready
+        if (video.readyState >= 2) {
+          playVideo(index)
+        } else {
+          // Wait for video to be ready, then play
+          const onCanPlay = () => {
+            playVideo(index)
+            video.removeEventListener('canplay', onCanPlay)
+          }
+          video.addEventListener('canplay', onCanPlay, { once: true })
+        }
+      } else {
+        // Fallback: try again after a short delay
+        setTimeout(() => {
+          playVideo(index)
+        }, 50)
+      }
+    } else {
+      // Mark for loading
+      videoShouldLoad.value[index] = true
+      // Play will be handled after video loads
+      setTimeout(() => {
+        playVideo(index)
+      }, 100)
     }
-
-    if (video && !video.src) {
-      video.src = videoSources[index]
-      video.load()
-    }
-
-    // Wait a bit for video to start loading, then play
-    setTimeout(() => {
-      playVideo(index)
-    }, 100)
-  } else {
-    // Mark for loading
-    videoShouldLoad.value[index] = true
-    // Play will be handled after video loads
-    setTimeout(() => {
-      playVideo(index)
-    }, 300)
-  }
+  })
 }
 
 // Handle video progress (for loading indicator)
 const handleVideoProgress = (index, event) => {
   const video = event.target
+  // If video is playing, hide loading immediately
+  if (video && !video.paused && video.readyState >= 3) {
+    setVideoLoading(index, false)
+    return
+  }
   if (video && video.buffered.length > 0) {
     const bufferedEnd = video.buffered.end(video.buffered.length - 1)
     const duration = video.duration
     if (duration > 0) {
       const bufferedPercent = (bufferedEnd / duration) * 100
-      // Keep loading indicator visible until video is mostly buffered
-      if (bufferedPercent < 90) {
+      // Keep loading indicator visible until video is mostly buffered OR if video is playing
+      if (bufferedPercent < 90 && video.paused) {
         setVideoLoading(index, true)
       } else {
         setVideoLoading(index, false)
@@ -745,7 +770,7 @@ const playVideo = (index) => {
       playPromise
         .then(() => {
           setVideoPlaying(index, true)
-          // Loading will be hidden by @canplay event or progress handler
+          setVideoLoading(index, false) // Hide loading immediately when play succeeds
         })
         .catch(() => {
           setVideoPlaying(index, false)
