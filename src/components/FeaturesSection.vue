@@ -66,34 +66,44 @@
                                   class="w-full h-full object-cover" />
                               </div>
 
-                              <!-- Loading Animation (shown when video is loading but not started) -->
-                              <div v-if="videoLoading[index] && !videoStarted[index]"
+                              <!-- Loading Animation (shown when video is loading) -->
+                              <div v-if="videoLoading[index]"
                                 class="absolute inset-0 bg-gradient-to-br from-green-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-30 transition-opacity duration-300">
                                 <div class="flex flex-col items-center gap-4">
-                                  <!-- Animated loader with pulsing circles -->
-                                  <div class="relative w-20 h-20">
+                                  <!-- Enhanced animated loader -->
+                                  <div class="relative w-24 h-24">
                                     <!-- Outer rotating ring -->
                                     <div class="absolute inset-0 border-4 border-primary-200 rounded-full"></div>
                                     <div
                                       class="absolute inset-0 border-4 border-primary-600 border-t-transparent rounded-full animate-spin">
                                     </div>
+                                    <!-- Middle pulsing ring -->
+                                    <div
+                                      class="absolute inset-2 border-3 border-primary-400 rounded-full animate-pulse-ring opacity-60">
+                                    </div>
                                     <!-- Inner pulsing circle -->
                                     <div class="absolute inset-0 flex items-center justify-center">
                                       <div
-                                        class="w-10 h-10 bg-primary-600 rounded-full animate-pulse-loader opacity-80">
+                                        class="w-12 h-12 bg-primary-600 rounded-full animate-pulse-loader opacity-80 shadow-lg">
                                       </div>
                                     </div>
-                                    <!-- Center dot -->
+                                    <!-- Center dot with ping -->
                                     <div class="absolute inset-0 flex items-center justify-center">
-                                      <div class="w-4 h-4 bg-primary-700 rounded-full animate-ping-loader">
+                                      <div class="w-5 h-5 bg-primary-700 rounded-full animate-ping-loader shadow-md">
                                       </div>
                                     </div>
                                   </div>
-                                  <!-- Loading text -->
-                                  <div class="text-center">
-                                    <p class="text-sm font-medium text-primary-700 animate-pulse-text">
+                                  <!-- Loading text with progress indicator -->
+                                  <div class="text-center space-y-2">
+                                    <p class="text-sm font-semibold text-primary-700 animate-pulse-text">
                                       Memuat video...
                                     </p>
+                                    <!-- Progress dots -->
+                                    <div class="flex gap-1.5 justify-center">
+                                      <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce-delay-0"></div>
+                                      <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce-delay-1"></div>
+                                      <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce-delay-2"></div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -118,7 +128,8 @@
                                 :data-video-index="index" data-video-type="mobile"
                                 class="w-full h-full object-cover transition-opacity duration-500"
                                 :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
-                                :preload="index === 0 ? 'auto' : 'none'" @loadstart="setVideoLoading(index, true)"
+                                :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
+                                @waiting="setVideoLoading(index, true)" @progress="handleVideoProgress(index, $event)"
                                 @loadedmetadata="onVideoLoaded(index)"
                                 @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                                 @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
@@ -204,33 +215,44 @@
                           <img :src="heroPlaceholder" alt="Video placeholder" class="w-full h-full object-cover" />
                         </div>
 
-                        <!-- Loading Animation (shown when video is loading but not started) -->
-                        <div v-if="videoLoading[index] && !videoStarted[index]"
+                        <!-- Loading Animation (shown when video is loading) -->
+                        <div v-if="videoLoading[index]"
                           class="absolute inset-0 bg-gradient-to-br from-green-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-30 transition-opacity duration-300">
                           <div class="flex flex-col items-center gap-4">
-                            <!-- Animated loader with pulsing circles -->
-                            <div class="relative w-20 h-20">
+                            <!-- Enhanced animated loader -->
+                            <div class="relative w-24 h-24">
                               <!-- Outer rotating ring -->
                               <div class="absolute inset-0 border-4 border-primary-200 rounded-full"></div>
                               <div
                                 class="absolute inset-0 border-4 border-primary-600 border-t-transparent rounded-full animate-spin">
                               </div>
+                              <!-- Middle pulsing ring -->
+                              <div
+                                class="absolute inset-2 border-3 border-primary-400 rounded-full animate-pulse-ring opacity-60">
+                              </div>
                               <!-- Inner pulsing circle -->
                               <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="w-10 h-10 bg-primary-600 rounded-full animate-pulse-loader opacity-80">
+                                <div
+                                  class="w-12 h-12 bg-primary-600 rounded-full animate-pulse-loader opacity-80 shadow-lg">
                                 </div>
                               </div>
-                              <!-- Center dot -->
+                              <!-- Center dot with ping -->
                               <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="w-4 h-4 bg-primary-700 rounded-full animate-ping-loader">
+                                <div class="w-5 h-5 bg-primary-700 rounded-full animate-ping-loader shadow-md">
                                 </div>
                               </div>
                             </div>
-                            <!-- Loading text -->
-                            <div class="text-center">
-                              <p class="text-sm font-medium text-primary-700 animate-pulse-text">
+                            <!-- Loading text with progress indicator -->
+                            <div class="text-center space-y-2">
+                              <p class="text-sm font-semibold text-primary-700 animate-pulse-text">
                                 Memuat video...
                               </p>
+                              <!-- Progress dots -->
+                              <div class="flex gap-1.5 justify-center">
+                                <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce-delay-0"></div>
+                                <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce-delay-1"></div>
+                                <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce-delay-2"></div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -255,6 +277,7 @@
                           class="w-full h-full object-cover transition-opacity duration-500"
                           :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
                           :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
+                          @waiting="setVideoLoading(index, true)" @progress="handleVideoProgress(index, $event)"
                           @loadedmetadata="onVideoLoaded(index)"
                           @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                           @play="setVideoPlaying(index, true)" @pause="setVideoPlaying(index, false)"
@@ -613,8 +636,29 @@ const startVideo = (index) => {
   }
 }
 
+// Handle video progress (for loading indicator)
+const handleVideoProgress = (index, event) => {
+  const video = event.target
+  if (video && video.buffered.length > 0) {
+    const bufferedEnd = video.buffered.end(video.buffered.length - 1)
+    const duration = video.duration
+    if (duration > 0) {
+      const bufferedPercent = (bufferedEnd / duration) * 100
+      // Keep loading indicator visible until video is mostly buffered
+      if (bufferedPercent < 90) {
+        setVideoLoading(index, true)
+      } else {
+        setVideoLoading(index, false)
+      }
+    }
+  }
+}
+
 // Play video
 const playVideo = (index) => {
+  // Show loading indicator immediately when play is clicked
+  setVideoLoading(index, true)
+
   // Always find video in DOM first (most reliable)
   const isMobile = window.innerWidth < 1024
   const videoType = isMobile ? 'mobile' : 'desktop'
@@ -631,6 +675,7 @@ const playVideo = (index) => {
   }
 
   if (!video) {
+    setVideoLoading(index, false)
     return
   }
 
@@ -648,6 +693,12 @@ const playVideo = (index) => {
   // Initialize videoPlaying state
   setVideoPlaying(index, false)
 
+  // Ensure video source is loaded
+  if (!video.src || video.src === '') {
+    video.src = videoSources[index]
+    video.load()
+  }
+
   // Ensure video is ready before playing
   if (!videoReady.value[index] || videoReady.value[index] === undefined) {
     // Wait for video to be ready
@@ -655,8 +706,10 @@ const playVideo = (index) => {
       video.currentTime = 0
       video.play().then(() => {
         setVideoPlaying(index, true)
+        setVideoLoading(index, false)
       }).catch(() => {
         setVideoPlaying(index, false)
+        setVideoLoading(index, false)
       })
       video.removeEventListener('canplay', onCanPlay)
     }
@@ -665,12 +718,16 @@ const playVideo = (index) => {
       video.currentTime = 0
       video.play().then(() => {
         setVideoPlaying(index, true)
+        setVideoLoading(index, false)
       }).catch(() => {
         setVideoPlaying(index, false)
+        setVideoLoading(index, false)
       })
     } else {
       video.addEventListener('canplay', onCanPlay, { once: true })
-      video.load()
+      if (video.readyState === 0) {
+        video.load()
+      }
     }
     return
   }
@@ -688,16 +745,20 @@ const playVideo = (index) => {
       playPromise
         .then(() => {
           setVideoPlaying(index, true)
+          // Loading will be hidden by @canplay event or progress handler
         })
         .catch(() => {
           setVideoPlaying(index, false)
+          setVideoLoading(index, false)
         })
     } else {
       // Fallback for older browsers
       setVideoPlaying(index, true)
+      setVideoLoading(index, false)
     }
   } catch (err) {
     setVideoPlaying(index, false)
+    setVideoLoading(index, false)
   }
 }
 
@@ -1082,6 +1143,85 @@ onUnmounted(() => {
 
 .animate-pulse-text {
   animation: pulse-text 2s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce-delay-0 {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-delay-1 {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+
+  20%,
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-delay-2 {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+
+  40%,
+  60% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+.animate-bounce-delay-0 {
+  animation: bounce-delay-0 1.4s ease-in-out infinite;
+}
+
+.animate-bounce-delay-1 {
+  animation: bounce-delay-1 1.4s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-bounce-delay-2 {
+  animation: bounce-delay-2 1.4s ease-in-out infinite;
+  animation-delay: 0.4s;
 }
 
 /* Smooth transitions for loading overlay */
