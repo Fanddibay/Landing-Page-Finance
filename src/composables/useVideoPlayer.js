@@ -173,7 +173,7 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     // Browser handles buffering automatically
   }
 
-  // Play video - simplified for faster execution
+  // Play video - resume from current position if paused, reset only on first play
   const playVideo = (index) => {
     const video = getVideoElement(index)
     if (!video) return
@@ -195,10 +195,20 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
       video.load()
     }
 
+    // Check if video has ended (needs restart) or if resuming from pause
+    const hasProgress = video.readyState >= 1 && video.currentTime > 0 && video.currentTime < (video.duration || Infinity) - 0.1
+    const isVideoEnded = video.ended || (video.duration > 0 && video.currentTime >= video.duration - 0.1)
+    
     // Direct play - browser handles buffering
     if (video.readyState >= 1) {
-      // Reset to beginning
-      video.currentTime = 0
+      // Only reset to beginning if video ended or first play (no progress)
+      // If video has progress and is paused, it's a resume - don't reset
+      if (isVideoEnded) {
+        video.currentTime = 0 // Restart looped video from beginning
+      } else if (!hasProgress) {
+        video.currentTime = 0 // First play - start from beginning
+      }
+      // If hasProgress (resuming from pause), don't change currentTime - continue from pause position
       
       // Play immediately
       video.play().then(() => {
@@ -217,7 +227,20 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     } else {
       // Wait for video metadata, then play
       const onCanPlay = () => {
-        video.currentTime = 0
+        // Re-check state when canplay fires
+        const currentTime = video.currentTime
+        const duration = video.duration || 0
+        const hasProgress = currentTime > 0 && currentTime < duration - 0.1
+        const isVideoEnded = video.ended || (duration > 0 && currentTime >= duration - 0.1)
+        
+        // Only reset if video ended or first play (no progress)
+        if (isVideoEnded) {
+          video.currentTime = 0 // Restart looped video from beginning
+        } else if (!hasProgress) {
+          video.currentTime = 0 // First play - start from beginning
+        }
+        // If hasProgress (resuming from pause), don't change currentTime - continue from pause position
+        
         video.play().then(() => {
           setVideoPlaying(index, true)
         }).catch(() => {

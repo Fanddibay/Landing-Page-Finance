@@ -1,7 +1,7 @@
 <template>
     <div class="relative w-full bg-gradient-to-br from-green-50 to-white aspect-[9/19.5] overflow-hidden">
-        <!-- Static Image Placeholder - Always show until video is playing -->
-        <div v-if="!videoPlaying"
+        <!-- Static Image Placeholder - Only show before video is started -->
+        <div v-if="!videoStarted"
             class="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-br from-green-50 to-white">
             <img :src="placeholder" alt="Video placeholder" class="w-full h-full object-cover" loading="lazy"
                 decoding="async">
@@ -9,16 +9,16 @@
 
         <!-- Loading Animation - Removed for faster loading -->
 
-        <!-- Video Element - Optimized for fast loading -->
+        <!-- Video Element - Always visible once started, even when paused -->
         <video v-if="videoSrc && videoStarted" :ref="(el) => setVideoRef(el, index, videoType)" :src="videoSrc"
             :data-video-index="index" :data-video-type="videoType" class="w-full h-full object-cover" muted loop
             playsinline preload="none" @loadedmetadata="onVideoLoaded(index)" @canplay="setVideoReady(index, true)"
             @play="setVideoPlaying(index, true)" @playing="setVideoPlaying(index, true)"
             @pause="setVideoPlaying(index, false)" @ended="setVideoPlaying(index, false)"
-            @click.stop="playVideo(index)"></video>
+            @click.stop="videoPlaying ? pauseVideo(index) : playVideo(index)"></video>
 
-        <!-- Play Button Overlay (shown on placeholder image) -->
-        <button v-if="!videoPlaying && !videoStarted" @click.stop="startVideo(index)"
+        <!-- Play Button Overlay (shown on placeholder image - before video started) -->
+        <button v-if="!videoStarted" @click.stop="startVideo(index)"
             class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-40">
             <div
                 class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
@@ -28,8 +28,8 @@
             </div>
         </button>
 
-        <!-- Play Button (shown when video ready but paused) -->
-        <button v-else-if="!videoPlaying && videoReady" @click.stop="playVideo(index)"
+        <!-- Play Button (shown when video is paused - after video started) -->
+        <button v-else-if="!videoPlaying && videoStarted && videoReady" @click.stop="playVideo(index)"
             class="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-all duration-200 group z-10">
             <div
                 class="w-20 h-20 rounded-full bg-primary-500/90 hover:bg-primary-600 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-all duration-200 backdrop-blur-sm">
