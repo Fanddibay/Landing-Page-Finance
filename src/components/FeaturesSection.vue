@@ -66,8 +66,8 @@
                                   class="w-full h-full object-cover" />
                               </div>
 
-                              <!-- Loading Animation (shown when video is loading) -->
-                              <div v-if="videoLoading[index]"
+                              <!-- Loading Animation (hidden - no loading animation needed) -->
+                              <div v-if="false"
                                 class="absolute inset-0 bg-gradient-to-br from-green-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-30 transition-opacity duration-300">
                                 <div class="flex flex-col items-center gap-4">
                                   <!-- Enhanced animated loader -->
@@ -124,13 +124,11 @@
                                     console.error('Error setting video ref:', err)
                                   }
                                 }
-                              }" :src="shouldLoadVideo(index) ? videoSources[index] : undefined"
-                                :data-video-index="index" data-video-type="mobile"
+                              }" :src="videoSources[index]" :data-video-index="index" data-video-type="mobile"
                                 class="w-full h-full object-cover transition-opacity duration-500"
                                 :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
-                                :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
-                                @waiting="setVideoLoading(index, true)" @progress="handleVideoProgress(index, $event)"
-                                @loadedmetadata="onVideoLoaded(index)"
+                                :preload="index === 0 ? 'auto' : 'metadata'"
+                                @progress="handleVideoProgress(index, $event)" @loadedmetadata="onVideoLoaded(index)"
                                 @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                                 @playing="setVideoLoading(index, false)"
                                 @play="setVideoPlaying(index, true); setVideoLoading(index, false)"
@@ -217,8 +215,8 @@
                           <img :src="heroPlaceholder" alt="Video placeholder" class="w-full h-full object-cover" />
                         </div>
 
-                        <!-- Loading Animation (shown when video is loading) -->
-                        <div v-if="videoLoading[index]"
+                        <!-- Loading Animation (hidden - no loading animation needed) -->
+                        <div v-if="false"
                           class="absolute inset-0 bg-gradient-to-br from-green-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-30 transition-opacity duration-300">
                           <div class="flex flex-col items-center gap-4">
                             <!-- Enhanced animated loader -->
@@ -278,8 +276,7 @@
                         }" :src="videoSources[index]" :data-video-index="index" data-video-type="desktop"
                           class="w-full h-full object-cover transition-opacity duration-500"
                           :class="videoReady[index] ? 'opacity-100' : 'opacity-0'" muted loop playsinline
-                          :preload="index === 0 ? 'auto' : 'metadata'" @loadstart="setVideoLoading(index, true)"
-                          @waiting="setVideoLoading(index, true)" @progress="handleVideoProgress(index, $event)"
+                          :preload="index === 0 ? 'auto' : 'metadata'" @progress="handleVideoProgress(index, $event)"
                           @loadedmetadata="onVideoLoaded(index)"
                           @canplay="setVideoReady(index, true); setVideoLoading(index, false)"
                           @playing="setVideoLoading(index, false)"
@@ -402,14 +399,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from '../composables/useI18n'
 import { useScrollAnimation } from '../composables/useScrollAnimation'
-
-// Video imports
-import manualFormVideo from './assets/video/manualForm.MP4'
-import scanPhotoVideo from './assets/video/scanPhoto.MP4'
-import generateTextVideo from './assets/video/generateText.MP4'
-import chatbotVideo from './assets/video/chatbot.MP4'
-import exportImportVideo from './assets/video/exportImport.MP4'
-import chartVideo from './assets/video/chart.MP4'
+import { getVideoByIndex } from '../constants/videoCdn'
 
 // Placeholder image import
 import heroPlaceholder from './assets/hero.png'
@@ -417,14 +407,14 @@ import heroPlaceholder from './assets/hero.png'
 const { t } = useI18n()
 const { elementRef: sectionRef, isVisible } = useScrollAnimation()
 
-// Video sources array
+// Video sources array - using CDN paths
 const videoSources = [
-  manualFormVideo,
-  scanPhotoVideo,
-  generateTextVideo,
-  chatbotVideo,
-  exportImportVideo,
-  chartVideo,
+  getVideoByIndex(0), // manualForm
+  getVideoByIndex(1), // scanPhoto
+  getVideoByIndex(2), // generateText
+  getVideoByIndex(3), // chatbot
+  getVideoByIndex(4), // exportImport
+  getVideoByIndex(5), // chart
 ]
 
 // Initialize videoRefs array immediately to prevent undefined errors
@@ -465,7 +455,6 @@ const videoRefs = ref([])
 const videoPlaying = ref({})
 const videoReady = ref({}) // Track if video is ready to show (loaded first frame)
 const videoLoading = ref({}) // Track video loading state
-const videoShouldLoad = ref({}) // Track which videos should be loaded (mobile optimization)
 const videoStarted = ref({}) // Track if video has been started (user clicked play)
 const stepRefs = ref([])
 const stepperRef = ref(null)
@@ -479,7 +468,6 @@ let scrollHandler = null
 let isScrolling = false
 let scrollTimeout = null
 let mobileObserver = null // IntersectionObserver for mobile slides
-let mobileVideoObserver = null // IntersectionObserver specifically for video lazy loading
 
 // Helper functions to safely access reactive objects
 const setVideoLoading = (index, value) => {
@@ -519,12 +507,6 @@ const initializeVideoState = () => {
       setVideoReady(i, false)
       setVideoLoading(i, false)
       videoStarted.value[i] = false // Video not started yet
-      // Mobile: Only load first video initially, others wait for intersection
-      if (i === 0) {
-        videoShouldLoad.value[i] = true
-      } else {
-        videoShouldLoad.value[i] = false
-      }
     }
   } catch (err) {
     console.error('Error initializing video state:', err)
@@ -533,19 +515,9 @@ const initializeVideoState = () => {
       setVideoPlaying(i, false)
       setVideoReady(i, false)
       setVideoLoading(i, false)
-      videoShouldLoad.value[i] = i === 0
+      videoStarted.value[i] = false
     }
   }
-}
-
-// Check if video should be loaded (mobile optimization)
-const shouldLoadVideo = (index) => {
-  // Desktop: load all videos
-  if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-    return true
-  }
-  // Mobile: only load if marked for loading
-  return videoShouldLoad.value[index] === true
 }
 
 // Calculate swiper width based on viewport
@@ -608,50 +580,32 @@ const onVideoLoaded = (index) => {
 const startVideo = (index) => {
   // Mark video as started
   videoStarted.value[index] = true
-  setVideoLoading(index, true)
+  // Don't show loading animation - video should play immediately
 
   // Use nextTick to ensure DOM is updated before accessing video element
   nextTick(() => {
-    // Load video source if not already loaded
-    if (shouldLoadVideo(index)) {
-      // Find video element and set source
-      const isMobile = window.innerWidth < 1024
-      const videoType = isMobile ? 'mobile' : 'desktop'
-      let video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
+    // Find video element (source is already set via :src binding)
+    const isMobile = window.innerWidth < 1024
+    const videoType = isMobile ? 'mobile' : 'desktop'
+    let video = document.querySelector(`video[data-video-index="${index}"][data-video-type="${videoType}"]`)
 
-      if (!video) {
-        video = document.querySelector(`video[data-video-index="${index}"]`)
-      }
+    if (!video) {
+      video = document.querySelector(`video[data-video-index="${index}"]`)
+    }
 
-      if (video) {
-        if (!video.src || video.src === '') {
-          video.src = videoSources[index]
-          video.load()
-        }
-        // Try to play immediately if video is ready
-        if (video.readyState >= 2) {
-          playVideo(index)
-        } else {
-          // Wait for video to be ready, then play
-          const onCanPlay = () => {
-            playVideo(index)
-            video.removeEventListener('canplay', onCanPlay)
-          }
-          video.addEventListener('canplay', onCanPlay, { once: true })
-        }
-      } else {
-        // Fallback: try again after a short delay
-        setTimeout(() => {
-          playVideo(index)
-        }, 50)
-      }
+    if (!video && videoRefs.value && videoRefs.value[index]) {
+      video = videoRefs.value[index]
+    }
+
+    if (video) {
+      // Video source is already set via :src binding
+      // Try to play immediately
+      playVideo(index)
     } else {
-      // Mark for loading
-      videoShouldLoad.value[index] = true
-      // Play will be handled after video loads
+      // Fallback: try again after a short delay
       setTimeout(() => {
         playVideo(index)
-      }, 100)
+      }, 50)
     }
   })
 }
@@ -681,8 +635,7 @@ const handleVideoProgress = (index, event) => {
 
 // Play video
 const playVideo = (index) => {
-  // Show loading indicator immediately when play is clicked
-  setVideoLoading(index, true)
+  // Don't show loading - video should play immediately
 
   // Always find video in DOM first (most reliable)
   const isMobile = window.innerWidth < 1024
@@ -700,7 +653,6 @@ const playVideo = (index) => {
   }
 
   if (!video) {
-    setVideoLoading(index, false)
     return
   }
 
@@ -724,45 +676,12 @@ const playVideo = (index) => {
     video.load()
   }
 
-  // Ensure video is ready before playing
-  if (!videoReady.value[index] || videoReady.value[index] === undefined) {
-    // Wait for video to be ready
-    const onCanPlay = () => {
-      video.currentTime = 0
-      video.play().then(() => {
-        setVideoPlaying(index, true)
-        setVideoLoading(index, false)
-      }).catch(() => {
-        setVideoPlaying(index, false)
-        setVideoLoading(index, false)
-      })
-      video.removeEventListener('canplay', onCanPlay)
-    }
-
-    if (video.readyState >= 2) {
-      video.currentTime = 0
-      video.play().then(() => {
-        setVideoPlaying(index, true)
-        setVideoLoading(index, false)
-      }).catch(() => {
-        setVideoPlaying(index, false)
-        setVideoLoading(index, false)
-      })
-    } else {
-      video.addEventListener('canplay', onCanPlay, { once: true })
-      if (video.readyState === 0) {
-        video.load()
-      }
-    }
-    return
-  }
-
   // Reset to beginning for smooth start
   if (video.readyState >= 2) {
     video.currentTime = 0
   }
 
-  // Play the video
+  // Play the video immediately - don't wait for ready state
   try {
     const playPromise = video.play()
 
@@ -770,20 +689,27 @@ const playVideo = (index) => {
       playPromise
         .then(() => {
           setVideoPlaying(index, true)
-          setVideoLoading(index, false) // Hide loading immediately when play succeeds
         })
-        .catch(() => {
+        .catch((err) => {
+          // If play fails, wait for video to be ready
           setVideoPlaying(index, false)
-          setVideoLoading(index, false)
+          const onCanPlay = () => {
+            video.currentTime = 0
+            video.play().then(() => {
+              setVideoPlaying(index, true)
+            }).catch(() => {
+              setVideoPlaying(index, false)
+            })
+            video.removeEventListener('canplay', onCanPlay)
+          }
+          video.addEventListener('canplay', onCanPlay, { once: true })
         })
     } else {
       // Fallback for older browsers
       setVideoPlaying(index, true)
-      setVideoLoading(index, false)
     }
   } catch (err) {
     setVideoPlaying(index, false)
-    setVideoLoading(index, false)
   }
 }
 
@@ -895,12 +821,9 @@ onMounted(() => {
     setTimeout(() => {
       const slides = slideRefs.value.filter(el => el)
       if (slides.length > 0 && swiperContainer.value) {
-        // Clean up existing observers
+        // Clean up existing observer
         if (mobileObserver) {
           mobileObserver.disconnect()
-        }
-        if (mobileVideoObserver) {
-          mobileVideoObserver.disconnect()
         }
 
         // Observer for slide visibility (active step detection)
@@ -930,53 +853,10 @@ onMounted(() => {
           }
         )
 
-        // Separate observer for video lazy loading (more aggressive)
-        mobileVideoObserver = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                const slide = entry.target.closest('.swiper-slide')
-                if (slide) {
-                  const index = slides.indexOf(slide)
-                  if (index !== -1 && !videoShouldLoad.value[index]) {
-                    // Mark video for loading
-                    videoShouldLoad.value[index] = true
-
-                    // Find and load video
-                    const video = slide.querySelector('video[data-video-type="mobile"]')
-                    if (video && !video.src) {
-                      video.src = videoSources[index]
-                      video.load()
-                    }
-                  }
-                }
-              }
-            })
-          },
-          {
-            root: swiperContainer.value,
-            rootMargin: '50% 0px 50% 0px', // Load videos when they're 50% away from viewport
-            threshold: 0.1,
-          }
-        )
-
         slides.forEach((slide) => {
           mobileObserver.observe(slide)
-          mobileVideoObserver.observe(slide)
         })
       }
-
-      // Preload first video only (mobile) - with delay to not block initial render
-      setTimeout(() => {
-        initializeVideoRefs()
-        if (videoRefs.value && videoRefs.value[0]) {
-          const firstVideo = document.querySelector('video[data-video-index="0"][data-video-type="mobile"]')
-          if (firstVideo && !firstVideo.src) {
-            firstVideo.src = videoSources[0]
-            firstVideo.load()
-          }
-        }
-      }, 300) // Small delay to let initial render complete
     }, 200)
   })
 
@@ -1074,9 +954,6 @@ onUnmounted(() => {
   }
   if (mobileObserver) {
     mobileObserver.disconnect()
-  }
-  if (mobileVideoObserver) {
-    mobileVideoObserver.disconnect()
   }
   if (scrollHandler) {
     window.removeEventListener('scroll', scrollHandler)
