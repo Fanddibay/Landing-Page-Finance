@@ -3,13 +3,14 @@
         <!-- Static Image Placeholder - Always show until video is playing -->
         <div v-if="!videoPlaying"
             class="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-br from-green-50 to-white">
-            <img :src="placeholder" alt="Video placeholder" class="w-full h-full object-cover" />
+            <img :src="placeholder" alt="Video placeholder" class="w-full h-full object-cover" loading="lazy"
+                decoding="async">
         </div>
 
         <!-- Loading Animation - Removed for faster loading -->
 
         <!-- Video Element - Optimized for fast loading -->
-        <video v-if="videoSrc" :ref="(el) => setVideoRef(el, index, videoType)" :src="videoSrc"
+        <video v-if="videoSrc && videoStarted" :ref="(el) => setVideoRef(el, index, videoType)" :src="videoSrc"
             :data-video-index="index" :data-video-type="videoType" class="w-full h-full object-cover" muted loop
             playsinline preload="none" @loadedmetadata="onVideoLoaded(index)" @canplay="setVideoReady(index, true)"
             @play="setVideoPlaying(index, true)" @playing="setVideoPlaying(index, true)"

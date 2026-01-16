@@ -53,11 +53,10 @@
                       <div class="w-48 md:w-56">
                         <div class="bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
                           <div class="bg-white rounded-[2rem] overflow-hidden relative">
-                            <!-- Video Container - Auto-load when visible -->
+                            <!-- Video Container - Lazy load for mobile performance -->
                             <FeatureVideoPlayer :index="index" video-type="mobile"
-                              :video-src="shouldLoadVideo(index) ? videoSources[index] : undefined"
-                              :placeholder="heroPlaceholder"
-                              :video-started="videoStarted[index] || shouldLoadVideo(index)"
+                              :video-src="videoStarted[index] && shouldLoadVideo(index) ? videoSources[index] : undefined"
+                              :placeholder="heroPlaceholder" :video-started="videoStarted[index]"
                               :video-playing="videoPlaying[index]" :video-ready="videoReady[index]"
                               :video-loading="videoLoading[index]"
                               :set-video-ref="(el, idx, type) => setVideoRef(el, idx, type)" :start-video="startVideo"
@@ -267,28 +266,29 @@ onMounted(() => {
     // Setup mobile swiper observers (lazy loading only)
     setupObservers(markVideoForLoading, loadVideoSource)
 
-    // Preload and auto-play first video (mobile)
-    setTimeout(() => {
-      initializeVideoRefs()
-      markVideoForLoading(0)
-      const firstVideo = document.querySelector('video[data-video-index="0"][data-video-type="mobile"]')
-      if (firstVideo) {
-        if (!firstVideo.src) {
-          loadVideoSource(firstVideo, 0)
-        }
-        // Auto-play first video when ready
-        startVideo(0)
-      }
-    }, 300)
-
-    // Setup desktop stepper observers with auto-play
-    setTimeout(() => {
-      setupStepperObservers(markVideoForLoading)
-      // Auto-load and start first desktop video
-      if (videoSources[0]) {
+    // Preload and auto-play first video - optimized for mobile performance
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+    if (isMobile) {
+      // Defer first video loading to allow initial render to complete
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          initializeVideoRefs()
+          markVideoForLoading(0)
+          startVideo(0)
+        }, 150)
+      })
+    } else {
+      // Desktop: load immediately
+      setTimeout(() => {
+        initializeVideoRefs()
         markVideoForLoading(0)
         startVideo(0)
-      }
+      }, 100)
+    }
+
+    // Setup desktop stepper observers
+    setTimeout(() => {
+      setupStepperObservers(markVideoForLoading)
     }, 100)
   })
 })

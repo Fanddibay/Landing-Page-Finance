@@ -136,7 +136,7 @@ export function useMobileSwiper(activeStep, stepsLength = 6) {
         },
         {
           root: swiperContainer.value,
-          rootMargin: '0px',
+          rootMargin: '50px', // Start loading earlier for smoother experience
           threshold: 0.1, // Simple threshold for lazy loading
         }
       )

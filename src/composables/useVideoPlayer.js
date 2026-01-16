@@ -140,26 +140,30 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
     }
   }
 
-  // Start video - simplified for faster loading
+  // Start video - optimized for mobile performance
   const startVideo = (index) => {
     videoStarted.value[index] = true
+    markVideoForLoading(index) // Ensure video is marked for loading
 
-    nextTick(() => {
-      const video = getVideoElement(index)
+    // Use requestAnimationFrame for better mobile performance
+    requestAnimationFrame(() => {
+      nextTick(() => {
+        const video = getVideoElement(index)
 
-      if (video) {
-        // Ensure source is loaded
-        if (!video.src || video.src === '') {
-          video.src = videoSources[index]
-          video.load()
+        if (video) {
+          // Ensure source is loaded
+          if (!video.src || video.src === '') {
+            video.src = videoSources[index]
+            video.load()
+          }
+
+          // Direct play attempt - video will handle buffering automatically
+          playVideo(index)
+        } else {
+          // Fallback: try again briefly
+          setTimeout(() => playVideo(index), 50)
         }
-
-        // Direct play attempt - video will handle buffering automatically
-        playVideo(index)
-      } else {
-        // Fallback: try again briefly
-        setTimeout(() => playVideo(index), 50)
-      }
+      })
     })
   }
 
@@ -256,18 +260,8 @@ export function useVideoPlayer(videoSources, stepsCount = 6) {
   const markVideoForLoading = (index) => {
     if (!videoShouldLoad.value[index]) {
       videoShouldLoad.value[index] = true
-      
-      // Mark video as started to enable auto-play
-      videoStarted.value[index] = true
-      
-      // If video element exists, load it
-      nextTick(() => {
-        const video = getVideoElement(index)
-        if (video && (!video.src || video.src === '')) {
-          video.src = videoSources[index]
-          video.load()
-        }
-      })
+      // Don't set videoStarted here - let it be set when video element is actually needed
+      // This prevents premature video element creation on mobile
     }
   }
 

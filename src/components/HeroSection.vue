@@ -39,7 +39,7 @@
             <div class="bg-gray-900 rounded-[2.5rem] p-1.5 shadow-2xl">
               <div class="bg-white rounded-[2rem] overflow-hidden">
                 <div class="bg-gradient-to-br from-green-50 to-white h-[350px] md:h-[400px]">
-                  <img :src="chartImage" alt="Chart" class="w-full h-full object-cover">
+                  <img :src="chartImage" alt="Chart" class="w-full h-full object-cover" loading="lazy" decoding="async">
                 </div>
               </div>
             </div>
@@ -52,7 +52,7 @@
             <div class="bg-gray-900 rounded-[2.5rem] p-1.5 shadow-2xl">
               <div class="bg-white rounded-[2rem] overflow-hidden">
                 <div class="bg-gradient-to-br from-green-50 to-white h-[400px] md:h-[450px]">
-                  <img :src="heroImage" alt="Hero" class="w-full h-full object-cover">
+                  <img :src="heroImage" alt="Hero" class="w-full h-full object-cover" loading="eager" decoding="async">
                 </div>
               </div>
             </div>
@@ -66,7 +66,7 @@
             <div class="bg-gray-900 rounded-[2.5rem] p-1.5 shadow-2xl">
               <div class="bg-white rounded-[2rem] overflow-hidden">
                 <div class="bg-gradient-to-br from-primary-900 to-primary-800 h-[350px] md:h-[400px]">
-                  <img :src="summaryImage" alt="Summary" class="w-full h-full object-cover opacity-90">
+                  <img :src="summaryImage" alt="Summary" class="w-full h-full object-cover opacity-90" loading="lazy" decoding="async">
                 </div>
               </div>
             </div>
