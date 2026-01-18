@@ -19,7 +19,7 @@
         <!-- CTA Button -->
         <div ref="ctaRef" :class="['flex justify-center ', isCTAVisible ? 'fade-in-up visible' : 'fade-in-up']"
           style="transition-delay: 0.5s;">
-          <a href="https://financial-webapp.netlify.app/" target="_blank"
+          <a href="https://financial-webapp.pages.dev/" target="_blank"
             class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-800 text-white font-semibold rounded-full hover:bg-primary-900 transition-all duration-200 shadow-lg hover:shadow-xl">
             {{ t.header.tryNow }}
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,8 @@
             <div class="bg-gray-900 rounded-[2.5rem] p-1.5 shadow-2xl">
               <div class="bg-white rounded-[2rem] overflow-hidden">
                 <div class="bg-gradient-to-br from-primary-900 to-primary-800 h-[350px] md:h-[400px]">
-                  <img :src="summaryImage" alt="Summary" class="w-full h-full object-cover opacity-90" loading="lazy" decoding="async">
+                  <img :src="summaryImage" alt="Summary" class="w-full h-full object-cover opacity-90" loading="lazy"
+                    decoding="async">
                 </div>
               </div>
             </div>

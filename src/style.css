@@ -21,13 +21,29 @@
 @layer components {
   /* LemonSqueezy button styling override */
   .lemonsqueezy-button {
-    @apply block w-full bg-primary-600 text-white text-center font-semibold py-4 px-6 rounded-xl hover:bg-primary-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl no-underline;
+    @apply block w-full bg-primary-800 text-white text-center font-semibold py-4 px-6 rounded-full hover:bg-primary-900 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl no-underline;
     text-decoration: none !important;
+    display: block !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer !important;
   }
   
   .lemonsqueezy-button:hover {
-    @apply bg-primary-700;
+    @apply bg-primary-900;
     text-decoration: none !important;
+    color: white !important;
+  }
+  
+  /* Override LemonSqueezy default styles */
+  .lemonsqueezy-button * {
+    text-decoration: none !important;
+    color: white !important;
+  }
+  
+  /* Ensure LemonSqueezy overlay works correctly */
+  .lemonsqueezy-button:focus {
+    outline: none !important;
   }
 
   /* Scroll Animation Classes */

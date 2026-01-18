@@ -48,7 +48,7 @@
           </ul>
 
           <!-- CTA Button -->
-          <a href="https://financial-webapp.netlify.app/" target="_blank" rel="noopener noreferrer"
+          <a href="https://financial-webapp.pages.dev/" target="_blank" rel="noopener noreferrer"
             class="block w-full bg-primary-200 text-primary-800 text-center font-semibold py-4 px-6 rounded-full hover:bg-primary-300 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg no-underline">
             {{ t.pricing.basic.cta }}
           </a>
@@ -116,9 +116,10 @@
 
           <!-- LemonSqueezy Button -->
           <a href="https://fanbayy.lemonsqueezy.com/checkout/buy/7a5f3969-8d20-4f2d-9a40-2ddb167f9ed3?embed=1"
-            class="lemonsqueezy-button block w-full bg-primary-800 text-white text-center font-semibold py-4 px-6 rounded-full hover:bg-primary-900 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl no-underline">
+            class="lemonsqueezy-button">
             {{ t.pricing.lifetime.cta }}
           </a>
+
         </div>
       </div>
     </div>
@@ -126,6 +127,7 @@
 </template>
 
 <script setup>
+import { onMounted, nextTick } from 'vue'
 import { useI18n } from '../composables/useI18n'
 import { useScrollAnimation } from '../composables/useScrollAnimation'
 
@@ -134,4 +136,51 @@ const { elementRef: cardsRef, isVisible } = useScrollAnimation({ rootMargin: '0p
 const { elementRef: headerRef, isVisible: isHeaderVisible } = useScrollAnimation({ threshold: 0.2 })
 const { elementRef: basicPriceRef, isVisible: isBasicPriceVisible } = useScrollAnimation({ threshold: 0.3, rootMargin: '0px 0px -50px 0px' })
 const { elementRef: lifetimePriceRef, isVisible: isLifetimePriceVisible } = useScrollAnimation({ threshold: 0.3, rootMargin: '0px 0px -50px 0px' })
+
+// Ensure LemonSqueezy script is loaded and buttons are initialized
+onMounted(() => {
+  nextTick(() => {
+    // Load or re-initialize LemonSqueezy script for SPA compatibility
+    const initLemonSqueezy = () => {
+      // Check if script tag already exists
+      const existingScript = document.querySelector('script[src*="lemonsqueezy.com/lemon.js"]')
+
+      if (!existingScript) {
+        // Load LemonSqueezy script if not already loaded
+        const script = document.createElement('script')
+        script.src = 'https://assets.lemonsqueezy.com/lemon.js'
+        script.defer = true
+        script.onload = () => {
+          // Initialize buttons after script loads
+          if (window.LemonSqueezy?.Setup) {
+            window.LemonSqueezy.Setup()
+          }
+        }
+        document.head.appendChild(script)
+      } else {
+        // If already loaded, re-initialize buttons
+        if (window.LemonSqueezy?.Setup) {
+          window.LemonSqueezy.Setup()
+        } else {
+          // Wait for script to load
+          existingScript.addEventListener('load', () => {
+            if (window.LemonSqueezy?.Setup) {
+              window.LemonSqueezy.Setup()
+            }
+          })
+        }
+      }
+    }
+
+    // Initialize immediately
+    initLemonSqueezy()
+
+    // Re-initialize after a short delay to ensure DOM is ready
+    setTimeout(() => {
+      if (window.LemonSqueezy?.Setup) {
+        window.LemonSqueezy.Setup()
+      }
+    }, 200)
+  })
+})
 </script>
