@@ -115,7 +115,7 @@
           </ul>
 
           <!-- LemonSqueezy Button -->
-          <a href="https://fanbayy.lemonsqueezy.com/checkout/buy/7a5f3969-8d20-4f2d-9a40-2ddb167f9ed3?embed=1"
+          <a href="https://fanbayy.lemonsqueezy.com/checkout/buy/db17c48d-ec06-4575-b419-bd32433e0cbe?embed=1"
             class="lemonsqueezy-button">
             {{ t.pricing.lifetime.cta }}
           </a>
@@ -137,50 +137,19 @@ const { elementRef: headerRef, isVisible: isHeaderVisible } = useScrollAnimation
 const { elementRef: basicPriceRef, isVisible: isBasicPriceVisible } = useScrollAnimation({ threshold: 0.3, rootMargin: '0px 0px -50px 0px' })
 const { elementRef: lifetimePriceRef, isVisible: isLifetimePriceVisible } = useScrollAnimation({ threshold: 0.3, rootMargin: '0px 0px -50px 0px' })
 
-// Ensure LemonSqueezy script is loaded and buttons are initialized
+// Ensure LemonSqueezy script is loaded
 onMounted(() => {
   nextTick(() => {
-    // Load or re-initialize LemonSqueezy script for SPA compatibility
-    const initLemonSqueezy = () => {
-      // Check if script tag already exists
-      const existingScript = document.querySelector('script[src*="lemonsqueezy.com/lemon.js"]')
+    // Check if script tag already exists
+    const existingScript = document.querySelector('script[src*="lemonsqueezy.com/lemon.js"]')
 
-      if (!existingScript) {
-        // Load LemonSqueezy script if not already loaded
-        const script = document.createElement('script')
-        script.src = 'https://assets.lemonsqueezy.com/lemon.js'
-        script.defer = true
-        script.onload = () => {
-          // Initialize buttons after script loads
-          if (window.LemonSqueezy?.Setup) {
-            window.LemonSqueezy.Setup()
-          }
-        }
-        document.head.appendChild(script)
-      } else {
-        // If already loaded, re-initialize buttons
-        if (window.LemonSqueezy?.Setup) {
-          window.LemonSqueezy.Setup()
-        } else {
-          // Wait for script to load
-          existingScript.addEventListener('load', () => {
-            if (window.LemonSqueezy?.Setup) {
-              window.LemonSqueezy.Setup()
-            }
-          })
-        }
-      }
+    if (!existingScript) {
+      // Load LemonSqueezy script if not already loaded
+      const script = document.createElement('script')
+      script.src = 'https://assets.lemonsqueezy.com/lemon.js'
+      script.defer = true
+      document.head.appendChild(script)
     }
-
-    // Initialize immediately
-    initLemonSqueezy()
-
-    // Re-initialize after a short delay to ensure DOM is ready
-    setTimeout(() => {
-      if (window.LemonSqueezy?.Setup) {
-        window.LemonSqueezy.Setup()
-      }
-    }, 200)
   })
 })
 </script>

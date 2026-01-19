@@ -203,7 +203,7 @@ const translations = {
         },
         {
           question: 'What is the pricing?',
-          answer: 'We offer a one-time lifetime license for $2.6. No subscriptions, no hidden fees.',
+          answer: 'We offer a one-time lifetime license for $1.15. No subscriptions, no hidden fees.',
         },
       ],
     },
@@ -225,7 +225,7 @@ const translations = {
       lifetime: {
         name: 'Lifetime License',
         originalPrice: '$4.5',
-        price: '$2.6',
+        price: '$1.15',
         discount: '42% OFF',
         priceSubtext: 'One-time payment',
         description: 'Best for power users',
@@ -237,7 +237,7 @@ const translations = {
           'Lifetime access',
           'Priority support',
         ],
-        cta: 'Buy License',
+        cta: 'Buy FinanceApp',
       },
     },
     cta: {
@@ -484,7 +484,7 @@ const translations = {
         },
         {
           question: 'Berapa harganya?',
-          answer: 'Kami menawarkan lisensi seumur hidup sekali bayar seharga Rp. 39.000. Tidak ada langganan, tidak ada biaya tersembunyi.',  
+          answer: 'Kami menawarkan lisensi seumur hidup sekali bayar seharga Rp. 19.450. Tidak ada langganan, tidak ada biaya tersembunyi.',  
         },
       ],
     },
@@ -506,7 +506,7 @@ const translations = {
       lifetime: {
         name: 'Lisensi Seumur Hidup',
         originalPrice: 'Rp67.000',
-        price: 'Rp39.000',
+        price: 'Rp19.450',
         discount: '42% OFF',
         priceSubtext: 'Pembayaran satu kali',
         description: 'Terbaik untuk power users',
@@ -518,7 +518,7 @@ const translations = {
           'Akses seumur hidup',
           'Dukungan prioritas',
         ],
-        cta: 'Beli Lisensi',
+        cta: 'Beli FinanceApp',
       },
     },
     cta: {
