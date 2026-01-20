@@ -82,7 +82,7 @@ const translations = {
       description: 'Advanced features for financial advisors and power users. Get early access to professional-grade tools.',
       benefit1: '99% faster transaction processing',
       benefit2: '50% better financial insights',
-      button: 'Buy License',  
+      button: 'Buy License',
     },
     clarity: {
       title: 'How it Works',
@@ -237,7 +237,7 @@ const translations = {
           'Lifetime access',
           'Priority support',
         ],
-        cta: 'Buy FinanceApp',
+        cta: 'Buy Lisensi',
       },
     },
     cta: {
@@ -484,7 +484,7 @@ const translations = {
         },
         {
           question: 'Berapa harganya?',
-          answer: 'Kami menawarkan lisensi seumur hidup sekali bayar seharga Rp. 19.450. Tidak ada langganan, tidak ada biaya tersembunyi.',  
+          answer: 'Kami menawarkan lisensi seumur hidup sekali bayar seharga Rp. 19.450. Tidak ada langganan, tidak ada biaya tersembunyi.',
         },
       ],
     },
@@ -501,7 +501,7 @@ const translations = {
           'Import dan export data',
           'Tanpa iklan',
         ],
-        cta: 'Mulai Gratis',
+        cta: 'Coba Gratis Sekarang',
       },
       lifetime: {
         name: 'Lisensi Seumur Hidup',
@@ -518,7 +518,7 @@ const translations = {
           'Akses seumur hidup',
           'Dukungan prioritas',
         ],
-        cta: 'Beli FinanceApp',
+        cta: 'Beli Lisensi',
       },
     },
     cta: {
@@ -569,14 +569,14 @@ const translations = {
 
 export function useI18n() {
   const t = computed(() => translations[currentLanguage.value])
-  
+
   const setLanguage = (lang) => {
     if (translations[lang]) {
       currentLanguage.value = lang
       localStorage.setItem('fanplanner-language', lang)
     }
   }
-  
+
   const initLanguage = () => {
     const saved = localStorage.getItem('fanplanner-language')
     if (saved && translations[saved]) {
@@ -587,7 +587,7 @@ export function useI18n() {
       localStorage.setItem('fanplanner-language', 'ID')
     }
   }
-  
+
   return {
     t,
     currentLanguage,
