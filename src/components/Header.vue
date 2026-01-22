@@ -8,7 +8,7 @@
         <div class="shrink-0">
           <a href="#home" class="flex items-center space-x-2 group">
             <img :src="logo" alt="Fanplanner Logo" class="h-8 md:h-10">
-            <span class="text-xl md:text-2xl font-bold text-primary-800">Fanplanner</span>
+
           </a>
         </div>
 
