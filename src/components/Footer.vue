@@ -9,7 +9,7 @@
           <div class="space-y-4 col-span-3">
             <div class="flex items-center space-x-2 mb-4">
               <img :src="logo" alt="Fanplanner Logo" class="h-8 md:h-10">
-              <span class="text-xl md:text-2xl font-bold text-gray-900">Fanplanner</span>
+
             </div>
 
             <p class="text-gray-700 leading-relaxed text-xs">
