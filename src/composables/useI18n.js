@@ -100,10 +100,10 @@ const translations = {
           description: 'Record transactions in the way that\'s most comfortable for you — manual, receipt scan, or just type a simple sentence. Fanplanner will organize it automatically for you.',
         },
         takeAction: {
-          label: 'Take Action',
-          title: 'Take Action Immediately, No Drama',
-          subtitle: 'Manage Transactions with Ease.',
-          description: 'Every transaction is recorded neatly right away. Edit, search, filter, export, or import data anytime — without unnecessary steps.',
+          label: 'Manage your pocket',
+          title: 'Manage Your Pocket',
+          subtitle: 'Each pocket has its own balance and history',
+          description: 'Use Pockets to separate your money by purpose — daily expenses, savings, or specific goals.',
         },
         trackProgress: {
           label: 'Track Progress',
@@ -112,7 +112,7 @@ const translations = {
           description: 'Fanplanner helps you understand where your money goes, so you can build healthier financial habits.',
         },
         feelConfident: {
-          label: 'Feel Confident',
+          label: 'Feel Secure',
           title: 'Easy Device Switching, Data Stays Safe',
           subtitle: 'Better Financial Decisions.',
           description: 'Switching devices is no problem. You can export and import all transaction data easily anytime. All data is stored privately in your device\'s browser, not on our servers. To move data to another device, you only need the data key that you own — ensuring data stays safe and can\'t be accessed by just anyone.',
@@ -224,9 +224,9 @@ const translations = {
       },
       lifetime: {
         name: 'Lifetime License',
-        originalPrice: '$4.5',
-        price: '$1.15',
-        discount: '42% OFF',
+        originalPrice: '$2,5',
+        price: '$1.25. ',
+        discount: '50% OFF',
         priceSubtext: 'One-time payment',
         description: 'Best for power users',
         badge: 'Most Popular',
@@ -381,10 +381,10 @@ const translations = {
           description: 'Catat transaksi dengan cara yang paling nyaman — manual, scan struk, atau cukup ketik kalimat biasa. Fanplanner akan menyusunnya otomatis untuk kamu.',
         },
         takeAction: {
-          label: 'Ambil Tindakan',
-          title: 'Langsung Bertindak, Tanpa Drama',
-          subtitle: 'Kelola Transaksi dengan Mudah.',
-          description: 'Setiap transaksi langsung tercatat rapi. Edit, cari, filter, export, atau import data kapan saja — tanpa langkah bertele-tele.',
+          label: 'Pilah kantongmu',
+          title: 'Atur Uang Jadi Lebih Rapi',
+          subtitle: 'Setiap kantong punya saldo dan riwayat sendiri',
+          description: 'Gunakan Kantong untuk memisahkan uang sesuai kebutuhan — harian, tabungan, atau tujuan lainnya.',
         },
         trackProgress: {
           label: 'Lacak Kemajuan',
@@ -393,7 +393,7 @@ const translations = {
           description: 'Fanplanner membantumu memahami ke mana uangmu pergi, sehingga kamu bisa membangun kebiasaan finansial yang lebih sehat.',
         },
         feelConfident: {
-          label: 'Rasa Percaya Diri',
+          label: 'Kemanan dan kemudahan',
           title: 'Mudah Berpindah Device, Data Tetap Aman',
           subtitle: 'Keputusan Finansial yang Lebih Baik.',
           description: 'Pindah perangkat bukan masalah. Kamu bisa export dan import seluruh data transaksi dengan mudah kapan saja. Semua data disimpan secara pribadi di browser perangkatmu, bukan di server kami. Untuk memindahkan data ke device lain, kamu hanya perlu data key yang kamu miliki sendiri — memastikan data tetap aman dan tidak bisa diakses sembarang orang.',
@@ -505,9 +505,9 @@ const translations = {
       },
       lifetime: {
         name: 'Lisensi Seumur Hidup',
-        originalPrice: 'Rp67.000',
-        price: 'Rp19.450',
-        discount: '42% OFF',
+        originalPrice: 'Rp45.000',
+        price: 'Rp22.500',
+        discount: '50% OFF',
         priceSubtext: 'Pembayaran satu kali',
         description: 'Terbaik untuk power users',
         badge: 'Paling Populer',

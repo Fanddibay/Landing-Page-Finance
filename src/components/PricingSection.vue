@@ -48,7 +48,7 @@
           </ul>
 
           <!-- CTA Button -->
-          <a href="https://financial-webapp.pages.dev/" target="_blank" rel="noopener noreferrer"
+          <a href="https://fanplanner-app.com/" target="_blank" rel="noopener noreferrer"
             class="block w-full bg-primary-200 text-primary-800 text-center font-semibold py-4 px-6 rounded-full hover:bg-primary-300 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg no-underline">
             {{ t.pricing.basic.cta }}
           </a>

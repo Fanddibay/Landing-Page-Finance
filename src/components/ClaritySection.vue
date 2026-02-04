@@ -133,7 +133,7 @@ import { useScrollAnimation } from '../composables/useScrollAnimation'
 // Images
 import heroImage from './assets/hero.png'
 import optionFeaturesImage from './assets/optionFeature.png'
-import formTransactionImage from './assets/formTransaction.png'
+import formTransactionImage from './assets/pocket.png'
 import chartImage from './assets/chart.png'
 import importData from './assets/importData.png'
 

@@ -19,7 +19,7 @@
         <!-- CTA Button -->
         <div ref="ctaRef" :class="['flex justify-center ', isCTAVisible ? 'fade-in-up visible' : 'fade-in-up']"
           style="transition-delay: 0.5s;">
-          <a href="https://financial-webapp.pages.dev/" target="_blank"
+          <a href="https://fanplanner-app.com/" target="_blank"
             class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-800 text-white font-semibold rounded-full hover:bg-primary-900 transition-all duration-200 shadow-lg hover:shadow-xl">
             {{ t.header.tryNow }}
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +61,7 @@
 
         <!-- Right Phone (Partially Visible) -->
         <div
-          class="absolute left-1/2 bottom-0 transform translate-x-[20%] md:translate-x-[10%] rotate-12 md:rotate-6 z-10 opacity-80">
+          class="absolute left-1/2 bottom-0 transform translate-x-[20%]  md:translate-x-[10%] rotate-12 md:rotate-6 z-10 opacity-80">
           <div class="w-32 md:w-40 lg:w-48 h-52">
             <div class="bg-gray-900 rounded-[2.5rem] p-1.5 shadow-2xl">
               <div class="bg-white rounded-[2rem] overflow-hidden">
@@ -91,7 +91,7 @@ import { useI18n } from '../composables/useI18n'
 import { useScrollAnimation } from '../composables/useScrollAnimation'
 import heroImage from './assets/hero.png'
 import chartImage from './assets/chart.png'
-import summaryImage from './assets/summary.png'
+import summaryImage from './assets/pocket.png'
 
 const { t } = useI18n()
 const { elementRef: titleRef, isVisible: isTitleVisible } = useScrollAnimation({ threshold: 0.3 })

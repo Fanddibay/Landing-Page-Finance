@@ -1,5 +1,5 @@
 <template>
-  <section id="contact" class="relative py-16 md:py-14 overflow-hidden">
+  <section id="contact" class="relative py-16 md:py-14 ">
 
     <div class="relative z-10 container mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
       <!-- Contact Card -->
