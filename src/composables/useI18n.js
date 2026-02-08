@@ -268,6 +268,7 @@ const translations = {
       terms: 'Terms of Use',
       contact: 'Contact',
       copyright: '© 2025 Fanplanner. All rights reserved.',
+      version: 'V. 4.1.1',
       features: {
         title: 'Features',
         smartTracking: 'Smart Transaction Tracking',
@@ -549,6 +550,7 @@ const translations = {
       terms: 'Syarat Penggunaan',
       contact: 'Kontak',
       copyright: '© 2025 Fanplanner. Hak cipta dilindungi.',
+      version: 'V. 4.1.1',
       features: {
         title: 'Fitur',
         smartTracking: 'Pelacakan Transaksi Cerdas',
