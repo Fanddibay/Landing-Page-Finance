@@ -29,9 +29,9 @@
         </div>
       </div>
 
-      <!-- Bottom Section: 3 Phone Mockups -->
+      <!-- Bottom Section: 3 Phone Mockups (hidden on mobile) -->
       <div ref="phonesRef"
-        :class="['relative flex justify-center mt-24  items-start pt-3', isPhonesVisible ? 'fade-in visible' : 'fade-in']">
+        :class="['hidden md:flex relative justify-center mt-24 items-start pt-3', isPhonesVisible ? 'fade-in visible' : 'fade-in']">
         <!-- Left Phone (Partially Visible) -->
         <div
           class="absolute left-1/2 bottom-0 transform -translate-x-[120%] md:-translate-x-[110%] -rotate-12 md:-rotate-6 z-10 opacity-80">
@@ -75,9 +75,9 @@
         </div>
 
       </div>
-      <!-- Gradient Border Line -->
+      <!-- Gradient Border Line (hidden on mobile) -->
       <div
-        class="z-40 mx-auto flex justify-center absolute bottom-0 w-1/2 rounded-full h-1 left-1/2 -translate-x-1/2 overflow-hidden"
+        class="hidden md:flex z-40 mx-auto justify-center absolute bottom-0 w-1/2 rounded-full h-1 left-1/2 -translate-x-1/2 overflow-hidden"
         style="background: linear-gradient(to right, #16a34a, #22c55e, #4ade80, #f97316, #fb923c, #f97316);"></div>
     </div>
 
