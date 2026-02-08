@@ -68,6 +68,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
+              <!-- Goal Icon (flag) -->
+              <svg v-else-if="step.iconType === 'goal'" :class="[
+                'w-6 h-6 transition-all duration-200',
+                activeStep === index ? 'text-white' : 'text-primary-600'
+              ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+              </svg>
               <!-- Check Icon -->
               <svg v-else-if="step.iconType === 'check'" :class="[
                 'w-6 h-6 transition-all duration-200',
@@ -134,6 +142,7 @@ import { useScrollAnimation } from '../composables/useScrollAnimation'
 import heroImage from './assets/hero.png'
 import optionFeaturesImage from './assets/optionFeature.png'
 import formTransactionImage from './assets/pocket.png'
+import goalsImage from './assets/goals.png'
 import chartImage from './assets/chart.png'
 import importData from './assets/importData.png'
 
@@ -142,8 +151,8 @@ const { elementRef: sectionRef, isVisible } = useScrollAnimation()
 const activeStep = ref(0)
 
 // Icon types for each step
-const iconTypes = ['plus', 'search', 'action', 'chart', 'check']
-const images = [heroImage, optionFeaturesImage, formTransactionImage, chartImage, importData]
+const iconTypes = ['plus', 'search', 'action', 'goal', 'chart', 'check']
+const images = [heroImage, optionFeaturesImage, formTransactionImage, goalsImage, chartImage, importData]
 
 // Steps Data - computed from translations
 const steps = computed(() => {
@@ -151,7 +160,7 @@ const steps = computed(() => {
   if (!translations?.clarity?.steps) {
     return []
   }
-  const stepKeys = ['signUp', 'explore', 'takeAction', 'trackProgress', 'feelConfident']
+  const stepKeys = ['signUp', 'explore', 'takeAction', 'goals', 'trackProgress', 'feelConfident']
   return stepKeys.map((key, index) => {
     const stepData = translations.clarity.steps[key]
     if (!stepData) {

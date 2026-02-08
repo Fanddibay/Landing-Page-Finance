@@ -75,6 +75,10 @@ const translations = {
           title: 'See Your Finances Clearly',
           description: 'Visualize your income and spending through clear, meaningful charts to make better financial decisions.',
         },
+        {
+          title: 'Track Your Goals',
+          description: 'Set goals and see your progress in one place. Whether it\'s a trip, a new device, or a big life moment — stay on track and motivated until you get there.',
+        },
       ],
     },
     proTools: {
@@ -104,6 +108,12 @@ const translations = {
           title: 'Manage Your Pocket',
           subtitle: 'Each pocket has its own balance and history',
           description: 'Use Pockets to separate your money by purpose — daily expenses, savings, or specific goals.',
+        },
+        goals: {
+          label: 'Goals',
+          title: 'Reach What You Dream Of',
+          subtitle: 'Track Your Journey to Every Goal.',
+          description: 'Set goals and follow your progress. Whether you\'re saving for a trip, a new device, or a big life moment — see how far you\'ve come and stay motivated until you get there.',
         },
         trackProgress: {
           label: 'Track Progress',
@@ -187,23 +197,23 @@ const translations = {
       items: [
         {
           question: 'What is Fanplanner?',
-          answer: 'Fanplanner is a smart personal finance tracking app that helps you track, analyze, and control your finances.',
+          answer: 'Fanplanner is a web-based personal finance app that helps you track, analyze, and control your money. You can record income and expenses, use pockets to separate money by purpose, set goals, and get insights — all without creating an account. It works in your browser, works offline, and keeps your data private on your device.',
         },
         {
           question: 'How does it work?',
-          answer: 'Simply add your transactions manually, scan receipts, or use text-to-transaction. Our AI analyzes your spending patterns and provides insights.',
+          answer: 'You can add transactions in three ways: type them in manually, scan a receipt with your camera, or write a simple sentence (e.g. "bought coffee for $3") and Fanplanner turns it into a transaction. Use Pockets to organize money (e.g. daily spending, savings) and Goals to track progress toward things you\'re saving for. Charts and a finance assistant help you see where your money goes and make better decisions.',
         },
         {
           question: 'Is my data secure?',
-          answer: 'Yes! All your data stays on your device. We don\'t sync to the cloud, ensuring complete privacy.',
+          answer: 'Yes. Your data is stored only on your device in the browser — we do not upload or sync it to our servers. Nothing is sent to the cloud, so only you have access. To move data to another device, you use export/import and a private data key that only you know. We are designed for privacy first.',
         },
         {
           question: 'Do I need an internet connection?',
-          answer: 'No! Fanplanner works completely offline. Your data is stored locally on your device.',
+          answer: 'No. Fanplanner works fully offline after you\'ve opened it. You can add transactions, view summaries, and use the app without internet. You only need the internet if you choose to use online features (e.g. receipt scanning that uses the cloud). Your data stays on your device either way.',
         },
         {
           question: 'What is the pricing?',
-          answer: 'We offer a one-time lifetime license for $1.15. No subscriptions, no hidden fees.',
+          answer: 'We have a free plan (Basic) with limited use per day, and a one-time Lifetime License (about $1.15) for unlimited access forever. There are no monthly subscriptions and no hidden fees. You pay once and keep full access.',
         },
       ],
     },
@@ -268,7 +278,6 @@ const translations = {
       terms: 'Terms of Use',
       contact: 'Contact',
       copyright: '© 2025 Fanplanner. All rights reserved.',
-      version: 'V. 4.1.1',
       features: {
         title: 'Features',
         smartTracking: 'Smart Transaction Tracking',
@@ -357,6 +366,10 @@ const translations = {
           title: 'Lihat Keuangan Lebih Jelas',
           description: 'Pantau pemasukan dan pengeluaran lewat grafik yang informatif untuk membantu kamu mengambil keputusan lebih baik.',
         },
+        {
+          title: 'Lacak Tujuan Kamu',
+          description: 'Tetapkan tujuan dan pantau progresnya dalam satu tempat. Mau nabung buat liburan, gadget baru, atau momen besar — tetap on track dan semangat sampai tercapai.',
+        },
       ],
     },
     proTools: {
@@ -386,6 +399,12 @@ const translations = {
           title: 'Atur Uang Jadi Lebih Rapi',
           subtitle: 'Setiap kantong punya saldo dan riwayat sendiri',
           description: 'Gunakan Kantong untuk memisahkan uang sesuai kebutuhan — harian, tabungan, atau tujuan lainnya.',
+        },
+        goals: {
+          label: 'Goals',
+          title: 'Wujudkan yang Kamu Impikan',
+          subtitle: 'Lacak Perjalanan Menuju Setiap Tujuan.',
+          description: 'Tetapkan tujuan dan pantau perkembangannya. Mau nabung buat liburan, gadget baru, atau momen besar — lihat sejauh apa progres kamu dan tetap semangat sampai tercapai.',
         },
         trackProgress: {
           label: 'Lacak Kemajuan',
@@ -469,23 +488,23 @@ const translations = {
       items: [
         {
           question: 'Apa itu Fanplanner?',
-          answer: 'Fanplanner adalah aplikasi pelacakan keuangan pribadi yang cerdas yang membantu Anda melacak, menganalisis, dan mengendalikan keuangan Anda.',
+          answer: 'Fanplanner adalah aplikasi keuangan berbasis web yang membantu kamu mencatat, menganalisis, dan mengendalikan uang. Kamu bisa catat pemasukan dan pengeluaran, pakai Kantong untuk memisahkan uang sesuai tujuan, buat Goals, dan dapat insight — tanpa perlu bikin akun. Dipakai lewat browser, bisa dipakai offline, dan data disimpan hanya di perangkatmu.',
         },
         {
           question: 'Bagaimana cara kerjanya?',
-          answer: 'Cukup tambahkan transaksi Anda secara manual, pindai struk, atau gunakan teks-ke-transaksi. AI kami menganalisis pola pengeluaran Anda dan memberikan wawasan.',
+          answer: 'Transaksi bisa ditambah dengan tiga cara: isi manual, scan struk pakai kamera, atau ketik kalimat sederhana (misalnya "beli kopi 25 ribu") lalu Fanplanner mengubahnya jadi transaksi. Pakai Kantong untuk mengatur uang (misal: belanja harian, tabungan) dan Goals untuk lacak progres nabung. Grafik dan asisten keuangan membantu kamu lihat kemana uang mengalir dan ambil keputusan lebih baik.',
         },
         {
           question: 'Apakah data saya aman?',
-          answer: 'Ya! Semua data Anda tetap di perangkat Anda. Kami tidak menyinkronkan ke cloud, memastikan privasi penuh.',
+          answer: 'Aman. Data kamu hanya disimpan di perangkat dalam browser — kami tidak mengunggah atau menyinkronkan ke server. Tidak ada yang dikirim ke cloud, jadi hanya kamu yang punya akses. Untuk pindah data ke perangkat lain, kamu pakai export/import dan data key pribadi yang hanya kamu yang tahu. Kami didesain privasi dulu.',
         },
         {
           question: 'Apakah saya perlu koneksi internet?',
-          answer: 'Tidak! Fanplanner bekerja sepenuhnya offline. Data Anda disimpan secara lokal di perangkat Anda.',
+          answer: 'Tidak. Fanplanner bisa dipakai penuh offline setelah halaman terbuka. Kamu bisa tambah transaksi, lihat ringkasan, dan pakai aplikasi tanpa internet. Internet hanya diperlukan jika kamu memakai fitur yang memakai cloud (misalnya scan struk berbasis cloud). Data tetap di perangkatmu dalam kondisi apa pun.',
         },
         {
           question: 'Berapa harganya?',
-          answer: 'Kami menawarkan lisensi seumur hidup sekali bayar seharga Rp. 19.450. Tidak ada langganan, tidak ada biaya tersembunyi.',
+          answer: 'Ada paket gratis (Basic) dengan batas pemakaian per hari, dan Lisensi Seumur Hidup sekali bayar (Rp. 19.450) untuk akses tak terbatas selamanya. Tidak ada langganan bulanan dan tidak ada biaya tersembunyi. Bayar sekali, akses penuh tetap milikmu.',
         },
       ],
     },
@@ -550,7 +569,6 @@ const translations = {
       terms: 'Syarat Penggunaan',
       contact: 'Kontak',
       copyright: '© 2025 Fanplanner. Hak cipta dilindungi.',
-      version: 'V. 4.1.1',
       features: {
         title: 'Fitur',
         smartTracking: 'Pelacakan Transaksi Cerdas',

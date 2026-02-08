@@ -184,7 +184,8 @@ import scanPhotoVideo from './assets/video/scanPhoto.MP4'
 import generateTextVideo from './assets/video/generateText.MP4'
 import chatbotVideo from './assets/video/chatbot.MP4'
 import exportImportVideo from './assets/video/exportImport.MP4'
-import chartVideo from './assets/video/chart.MP4'
+import chartVideo from './assets/video/pocket.MP4'
+import goalsVideo from './assets/video/goals.mp4'
 
 // Placeholder image import
 import heroPlaceholder from './assets/hero.png'
@@ -200,6 +201,7 @@ const videoSources = [
   chatbotVideo,
   exportImportVideo,
   chartVideo,
+  goalsVideo,
 ]
 
 // Get steps count

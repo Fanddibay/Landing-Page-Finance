@@ -76,11 +76,9 @@
           </div>
         </div>
 
-        <!-- Copyright & Version -->
-        <div class="border-t border-gray-200 pt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-center">
-          <p class="text-gray-600 text-sm">{{ t.footer.copyright }}</p>
-          <span class="text-gray-400 text-sm hidden sm:inline">·</span>
-          <p class="text-gray-500 text-sm font-medium">{{ t.footer.version }}</p>
+        <!-- Copyright -->
+        <div class="border-t border-gray-200 pt-8 text-center">
+          <p class="text-gray-600">{{ t.footer.copyright }}</p>
         </div>
       </div>
     </div>
