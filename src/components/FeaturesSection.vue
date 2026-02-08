@@ -179,11 +179,11 @@ import { useDesktopStepper } from '../composables/useDesktopStepper'
 import FeatureVideoPlayer from './FeatureVideoPlayer.vue'
 
 // Video imports
-import manualFormVideo from './assets/video/manualForm.mp4'
-import scanPhotoVideo from './assets/video/scanPhoto.mp4'
-import generateTextVideo from './assets/video/generateText.mp4'
-import chatbotVideo from './assets/video/chatbot.mp4'
-import exportImportVideo from './assets/video/exportImport.mp4'
+import manualFormVideo from './assets/video/manualForm.MP4'
+import scanPhotoVideo from './assets/video/scanPhoto.MP4'
+import generateTextVideo from './assets/video/generateText.MP4'
+import chatbotVideo from './assets/video/chatbot.MP4'
+import exportImportVideo from './assets/video/exportImport.MP4'
 import chartVideo from './assets/video/pocket.mp4'
 import goalsVideo from './assets/video/goals.mp4'
 
